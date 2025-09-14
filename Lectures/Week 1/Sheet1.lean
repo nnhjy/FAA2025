@@ -65,34 +65,13 @@ variable (P Q: Prop)
 example : P = P := rfl
 example : 2 + 1 + 1 = 4 := rfl
 
-example : P → P := by
-  intro h
-  exact h
+example : P → P := by sorry
 
-example : P → (Q → P) := by
-  intro h hq
-  exact h
+example : P → (Q → P) := by sorry
 
-example (hP: P) (hQ: Q) : P ∧ Q := by
-  constructor
-  exact hP
-  exact hQ
+example (hP: P) (hQ: Q) : P ∧ Q := by sorry
 
 example: P ∧ Q ↔ Q ∧ P:= by
   constructor
-  · intro h
-    obtain ⟨hp,hq⟩ := h
-    constructor
-    · exact hq
-    · exact hp
-  · intro h
-    refine ⟨h.2,?_⟩
-    exact h.1
-
-
-
-
-
-
-  -- show forward direction
-  -- [TODO] backward direction
+  · sorry
+  · sorry

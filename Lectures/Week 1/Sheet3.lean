@@ -24,7 +24,7 @@ example : f 0 0 := by rfl
 /-! New tactics
 * `rewrite` [h] - replace a term in the goal with an equivalent term [h].
 * `assumption` - we are done because ∃`h` s.t. `exact h` can close the goal
-* `rw` -- rewrite, followed by assumption.
+* `rw` -- rewrite, followed by trying to close the goal by rfl.
 -/
 
 example (x: ℕ): f 0 x → x = 0 := by
@@ -33,20 +33,8 @@ example (x: ℕ): f 0 x → x = 0 := by
   symm at h
   assumption
 
-
-example (x: ℕ): f x 1 → x ≠ 2 := by
-  intro h
-  rw [f] at h
-  rw [h]
-  trivial
-
-example (x: ℕ): f x 1 → x ≠ 2 := by
-  intro h
-  by_contra!
-  rw [this] at h
-  rw [f] at h
-  contradiction
-
+-- Give a direct proof
+example (x: ℕ): f x 1 → x ≠ 2 := by sorry -- [TODO]
 
 example (x y: ℕ): f 0 x ∧ f 0 y → x = y := by sorry --[TODO]
 
@@ -57,8 +45,7 @@ example (x y: ℕ): f 0 x ∧ f 0 y → x = y := by sorry --[TODO]
 * `trivial` - apply `rfl` or `assumption` or `contradiction` tactics
 -/
 
-example (h1: a = b): a = b:= by trivial
+-- Prove by contradiction
+example (h1: a = b): a = b:= by sorry
 
-example (h1: a = b): a = b:= by
-  by_contra
-  contradiction
+example (x: ℕ): f x 1 → x ≠ 2 := by sorry

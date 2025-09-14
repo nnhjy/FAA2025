@@ -19,12 +19,7 @@ example (h: P → Q)(h2: P): Q := by
   apply h at h2
   trivial
 
-example (h: P → Q)(h2: Q → R): P → R := by
-  intro hp
-  apply h2
-  apply h
-  exact hp
-
+example (h: P → Q)(h2: Q → R): P → R := by sorry
 
 
 /-!
@@ -32,14 +27,9 @@ example (h: P → Q)(h2: Q → R): P → R := by
 The apply tactic in Lean can be used not only to transform goals but also to produce subgoals when the hypothesis you are applying has multiple premises.
 This is often the case when you have implications or functions that require more than one argument.
 -/
-example {S: Prop} (h0: P ∧ Q ∧ R)(h: P → Q → R → S): S := by
-  apply h
-  exact h0.1
-  exact h0.2.1
-  exact h0.2.2
+example {S: Prop} (h0: P ∧ Q ∧ R)(h: P → Q → R → S): S := by sorry
 
-example {S}: P → Q → R → S ↔ ((P ∧ Q ∧ R) → S) := by
-  tauto
+example {S}: P → Q → R → S ↔ ((P ∧ Q ∧ R) → S) := by tauto
 
 /-!
 ## More examples
@@ -47,10 +37,7 @@ example {S}: P → Q → R → S ↔ ((P ∧ Q ∧ R) → S) := by
 #check lt_trans
 example (x y z : ℝ) (hab : x < y) (hbc: y < z) : x < z := by
   apply lt_trans
-  pick_goal 3
-  exact y
-  exact hab
-  exact hbc
+  all_goals sorry
 
 example (a b c : ℝ) (hab : a < b) (hbc: b < c) : a < c := by
   trans b
