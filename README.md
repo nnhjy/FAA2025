@@ -9,7 +9,7 @@ This setup process typically takes 1-2 hours.
 
    https://github.com/sorrachai/FAA2025/
 
-   This can be done by following the same installation step as suggested by [Bavik's Lean course](https://github.com/b-mehta/formalising-mathematics-notes?tab=readme-ov-file)
+   This can be done by following the same installation step as suggested by [Bhavik's Lean course](https://github.com/b-mehta/formalising-mathematics-notes?tab=readme-ov-file)
    You can replace his repository with  https://github.com/sorrachai/FAA2025/
 3. Once you complete step 2, you can navigate to Lecture/Sheet1.lean to check if InfoView is working correctly. During this time, it may compile Mathlib locally (~30 mins on most machines). This happens only once. After that, you can use it normally.
 
