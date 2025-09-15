@@ -2,7 +2,7 @@
 
 ## Local installation
 
-This setup process typically takes 1-2 hours. If you have any problems, please reach out to our [TA](haocheng.wang@inf.ethz.ch) for help. 
+This setup process typically takes 1-2 hours. If you have any problems, please reach out to our [TA](mailto:haocheng.wang@inf.ethz.ch) for help. 
 
 1. Install Visual Studio Code and the Lean 4 extension. The instruction can be found [here](https://leanprover-community.github.io/get_started.html#regular-install)
 2. Install the following repository on your computer
