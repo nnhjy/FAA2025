@@ -33,3 +33,7 @@ This allows you to:
 - Keep original files intact for reference
 - Update the repository without losing your work: `git pull && lake exe cache get`
 - Submit homework from your personal folder
+
+## Online Editor
+
+You can code Lean using https://live.lean-lang.org/ (simply copying Sheet1.lean), and you can start coding right away. 
