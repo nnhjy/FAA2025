@@ -22,9 +22,9 @@ def f := fun x : ℕ ↦ fun y : ℕ  ↦ x = y
 example : f 0 0 := by rfl
 
 /-! New tactics
-* `rewrite` [h] - replace a term in the goal with an equivalent term [h].
-* `assumption` - we are done because ∃`h` s.t. `exact h` can close the goal
-* `rw` -- rewrite, followed by trying to close the goal by rfl.
+* `rewrite` [h] - replace a term *in the goal* with an equivalent term [h].
+* `assumption` - we are done because ∃`h` s.t. `exact h` can close the *goal*
+* `rw` -- rewrite, followed by trying to close the *goal* by rfl.
 -/
 
 example (x: ℕ): f 0 x → x = 0 := by
@@ -40,7 +40,7 @@ example (x y: ℕ): f 0 x ∧ f 0 y → x = y := by sorry --[TODO]
 
 
 /-! Bonus:
-* `by_contra` - assume the negation of the goal and prove False
+* `by_contra` - assume the negation of the *goal* and prove False
 * `contradiction` - we are done because we have a proof of `h : P` and `h' : ¬ P`
 * `trivial` - apply `rfl` or `assumption` or `contradiction` tactics
 -/

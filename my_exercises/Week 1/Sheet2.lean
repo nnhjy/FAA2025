@@ -2,7 +2,7 @@ import Mathlib.Tactic
 
 /-! New tactics
   * `apply` -- Suppose we have `h: P → Q`, which can be from the current assumptions or from the library.
-            -- we apply `h` on hypothesis to move assumptions forward and apply on goal to push the goal backward.
+            -- we apply `h` *on hypothesis* to move assumptions forward and apply on goal to push the goal backward.
   * If we have `hp: P`, then `apply h at hp` yields a new assumption `Q`
   * If the goal is in the form `Q`, then `apply h` changes the goal to `P`
 -/
