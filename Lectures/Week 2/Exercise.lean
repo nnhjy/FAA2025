@@ -9,14 +9,6 @@ import Mathlib.Data.Set.Card
 - Set operations and extensionality principles
 -/
 
--- IMPORTANT INSTRUCTIONS: the following automation operations are NOT allowed
--- simp
--- aesop
--- grind
--- ring
--- linarith
--- omega
-
 /-! ## Part 1: Quantifiers and Basic Logic
 
 Working with universal (∀) and existential (∃) quantifiers.
