@@ -52,10 +52,10 @@ There are ∼ 20 tactics that will be often used. We will introduce new tactics 
 * `rfl` -- reflexive property a = a: the *goal* can be closed because two objects are defitionally equal
 * `exact` -- the *goal* can be closed by exactly this hypothesis (i.e., because the goal is definitionally equal to it)
 * `intro` -- reduce a *goal* of the form `P → Q` to `Q` and obtain `h : P` as a new hypothesis
-          -- i.e., to prove implication, let's assume P and then we prove Q
-* `constructor` -- break down the *goal*s of the form P ∧ Q or P ↔ Q into subgoals
-                -- i.e., to prove P ∧ Q, let's prove P     and Q     separately
-                --       to prove P ↔ Q, let's prove P → Q and Q → P separately
+          -- i.e., to prove implication, let's assume `P` and then we prove `Q`
+* `constructor` -- break down the *goal*s of the form `P ∧ Q` or `P ↔ Q` into subgoals
+                -- i.e., to prove `P ∧ Q`, let's prove `P`     and `Q`     separately
+                --       to prove `P ↔ Q`, let's prove `P → Q` and `Q → P` separately
 -/
 
 section
