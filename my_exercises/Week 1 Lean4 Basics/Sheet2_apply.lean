@@ -46,9 +46,16 @@ example {S}: P → Q → R → S ↔ ((P ∧ Q ∧ R) → S) := by tauto
 #check lt_trans
 example (x y z : ℝ) (hab : x < y) (hbc: y < z) : x < z := by
   apply lt_trans
-  all_goals sorry
+  -- from Infoview: ?b is a meta variable
+  -- first supply this meta variable as 'y'
+  -- do this by 'case' tactic that selects case b followed by exact y
+  case b => exact y
+  -- we can solve the goals now
+  exact hab
+  exact hbc
 
 example (a b c : ℝ) (hab : a < b) (hbc: b < c) : a < c := by
+  -- alternatively, one could use 'trans' tactics to do the same thing
   trans b
   exact hab
   exact hbc

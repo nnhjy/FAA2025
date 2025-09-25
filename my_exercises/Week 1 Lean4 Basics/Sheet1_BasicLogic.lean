@@ -23,14 +23,20 @@ def Q1 : Prop := 1 ≠ 1
 ## How to state a theorem in Lean
 
 theorem [name] {optional parameters/assumptions} : [proposition] := [proof]
+* use `sorry` if no `proof` is provided.
 -/
 
-theorem one_eq_one : 1 = 1 := sorry
-theorem one_eq_one': P1 := sorry
+theorem one_eq_one : 1 = 1 := by rfl
+theorem one_eq_one': P1 := by rfl
 
 -- Let's check type of these thoerems
 #check one_eq_one
 -- one_eq_one has type 1 = 1
+
+/-!
+`lemma one_neq_one: 1 ≠ 1 := sorry`
+* A false proposition has no proof
+-/
 
 /-! Every true proposition has a proof. In Lean, a proof is represented as a term of the proposition.
 * `P : Prop` means `P` is a (specfic) proposition
@@ -39,7 +45,8 @@ theorem one_eq_one': P1 := sorry
 -/
 
 -- another example
-theorem x_pos (x : ℤ) (h: 1 < x) : 0 ≤ x := sorry
+theorem x_pos (x : ℤ) (h: 1 < x) : 0 ≤ x := by
+  omega
 #check x_pos
 
 /-!
