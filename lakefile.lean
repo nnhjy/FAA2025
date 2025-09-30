@@ -13,4 +13,5 @@ require mathlib from git
 
 @[default_target]
 lean_lib «FAA2025» where
+lean_lib «Lectures» where
   -- add any library configuration options here
