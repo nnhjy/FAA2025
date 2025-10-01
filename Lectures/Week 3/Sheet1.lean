@@ -14,6 +14,8 @@ set_option autoImplicit false
   In lean, you can use induction' tactics to do so.
 -/
 
+#check Nat.and_forall_add_one
+
 -- Let's define a recursive funciton:
 def I : ℕ → ℕ
   | 0 => 0
@@ -34,12 +36,7 @@ def I2 : ℕ → ℕ
   | n + 1 => I2 n + 2
 
 #eval [I2 0, I2 1, I2 2]
-example (n:ℕ): I2 n = 2*n := by
-  induction' n with n ih
-  · rw [I2]
-  · rw [I2]
-    rw [ih]
-    rfl
+example (n:ℕ): I2 n = 2*n := by sorry
 
 -- Another example
 example (n:ℕ): Even (I2 n) := by
@@ -55,6 +52,9 @@ example (n:ℕ): Even (I2 n) := by
     rw [hr]
     omega
 
+-- Exercise 2
+theorem even_or_odd (n : ℕ) : (∃ k, n = 2*k) ∨ (∃ k, n = 2*k+1) := by sorry
+
 def S : ℕ → ℕ
   | 0 => 0
   | n + 1 => S n + (n + 1)
@@ -65,7 +65,7 @@ def S : ℕ → ℕ
 
 #check mul_comm
 
--- Exercise 2
+-- Exercise 3
 lemma Sn_two (n : ℕ) : 2*(S n) = n * (n + 1)  := by sorry
 
 example (n : ℕ) : (S n) = n * (n + 1)/2  := by sorry
@@ -96,9 +96,9 @@ for `induction'`). -/
 
 #check Nat.le_induction
 
--- Exercise 3
-lemma le_fact (n : ℕ) : 1 ≤ (n)! := by sorry
-
+-- In general, you can choose a version of induction.
+#check Nat.decreasingInduction
+#check Nat.div2Induction
 
 -- Example
 example : ∀ n ≥ 5, 2 ^ n > n ^ 2 := by
@@ -109,4 +109,7 @@ example : ∀ n ≥ 5, 2 ^ n > n ^ 2 := by
     exact power_two_ih n ih h
 
 -- Exercise 4
+lemma le_fact (n : ℕ) : 1 ≤ (n)! := by sorry
+
+-- Exercise 5
 example (n : ℕ) : 2^n ≤ (n+1)! := by sorry
