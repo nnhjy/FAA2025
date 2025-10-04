@@ -184,23 +184,22 @@ theorem P4 : ∀ n, g (n) ≤ Nat.log 2 n + 1 := by
 -- # Problem 5
 -- in this problem, you are asked to solve the following recurrence relation.
 -- f(n) = 2*f(n-1) - f(n-2) + 2
--- where f(1) = 1 and f(2) = 4
+-- where f(0) = 1 and f(1) = 1
 -- Prove that that f(n) = n^2 - n + 1
 
 -- state the formal theorem and prove it
 -- Hint: you may find `zify` tactic useful
 
 def f : Nat → Nat
-  | 0   => 0
+  | 0   => 1
   | 1   => 1
-  | 2   => 3
   | n+2 => 2* f (n+1) - f (n) + 2
   -- | n => 2* f (n-1) - f (n-2) + 2
-  -- # f(0) seems a "must have" case on defining a function?
+  -- # why the latter definition not working? -> (n-1) or (n-2) can go beyond Nat?
 
-theorem P5 (n :ℕ ) (h0 : n > 0) : f (n) = n^2 - n + 1 := by
-  induction' n using Nat.twoStepInduction with i hi1 hi2
-  · tauto
+theorem P5 (n :ℕ ) : f (n) = n^2 - n + 1 := by
+  induction' n using Nat.twoStepInduction with i fi fi1
+  · simp [f]
   · simp [f]
   · if i=0 then
       rename_i i0
@@ -208,18 +207,18 @@ theorem P5 (n :ℕ ) (h0 : n > 0) : f (n) = n^2 - n + 1 := by
       unfold f
       rfl
     else
-      rename_i ix0
+      rename_i i_neq_0
       have i_gt_0 : i > 0 := by omega
-      simp [i_gt_0] at hi1
+      simp at fi
       have i_add_1_gt_0 : i + 1 > 0 := by omega
-      simp [i_add_1_gt_0] at hi2
+      simp at fi1
 
       rw [Nat.pow_two] at *
 
       have i_ge_1 : i ≥ 1 := by omega
       have h_l1 : i * i ≥ i := by simp_all
 
-      zify [h_l1] at hi1
+      zify [h_l1] at fi
 
       have h_l2a : 1 + i * 2 + i * i ≥ (1 + i) := by
         grw [h_l1]
@@ -230,10 +229,10 @@ theorem P5 (n :ℕ ) (h0 : n > 0) : f (n) = n^2 - n + 1 := by
         rw [Nat.pow_two]
         exact h_l2a
 
-      rw [Nat.right_distrib] at hi2
-      rw [Nat.left_distrib, Nat.left_distrib] at hi2
-      simp at hi2
-      zify [h_l2a] at hi2
+      rw [Nat.right_distrib] at fi1
+      rw [Nat.left_distrib, Nat.left_distrib] at fi1
+      simp at fi1
+      zify [h_l2a] at fi1
 
       have h_r : (i + 2) * (i + 2) ≥ i + 2 := by
         ring_nf
@@ -245,10 +244,10 @@ theorem P5 (n :ℕ ) (h0 : n > 0) : f (n) = n^2 - n + 1 := by
 
       have h_l : 2 * f (i + 1) ≥ f i := by
         zify
-        rw [hi1, hi2]
+        rw [fi, fi1]
         ring_nf
         linarith
 
       zify [h_l, h_r]
-      rw [hi2, hi1]
+      rw [fi1, fi]
       ring_nf
