@@ -33,8 +33,9 @@ def P : ℕ → ℕ → ℕ
   | _, 0 => 1
   | 0, _ + 1 => 1
   | a + 1, b + 1 => P (a + 1) b + P a (b + 1)
-termination_by a b => a + b
 
+
+-- In Lean, every recursively defined function is equipped with functional induction
 #check P.induct
 #check P.induct_unfolding
 
@@ -48,14 +49,18 @@ termination_by a b => a + b
 lemma P_le_fact ( a b : ℕ ): P a b ≤ (a+b)! := by
   fun_induction P
   all_goals (expose_names)
-  · simp only [add_zero, fact]
-  · simp only [factorial, Nat.add_eq, zero_add]
-    grw [← (fact n)]
-    simp only [mul_one, le_add_iff_nonneg_left, zero_le]
+  · simp only [add_zero]
+    exact fact x
+  · simp only [Nat.succ_eq_add_one, zero_add]
+    exact fact (n + 1)
   · grw [ih1,ih2]
     clear * -; grind [fact,factorial] -- grind for algebraic proofs
 
--- Functional induction
+-- grind is a powerful automation
+-- We will not be using grind for the rest of the week.
+lemma P_le_fact'' ( a b : ℕ ): P a b ≤ (a+b)! := by
+  fun_induction P <;> all_goals grind only [fact, factorial]
+
 -- This proof is more intuitive than the one-line proof
 lemma P_le_fact' ( a b : ℕ ): P a b ≤ (a+b)! := by
   fun_induction P <;> all_goals (try simp_all only [add_zero, fact])
@@ -66,11 +71,6 @@ lemma P_le_fact' ( a b : ℕ ): P a b ≤ (a+b)! := by
                               _ = ((a + b + 1) + 1) * (a + b + 1)!                           := by ring_nf
                               _ = ((a + b + 1) + 1)!                                         := by bound
                               _ = (a + 1 + (b + 1))!                                         := by ring_nf
-
--- grind is a powerful automation
--- We will not be using grind for the rest of the week.
-lemma P_le_fact'' ( a b : ℕ ): P a b ≤ (a+b)! := by
-  fun_induction P <;> all_goals grind only [fact, factorial]
 
 --#print P_le_fact'
 --#print P_le_fact'._proof_1_5

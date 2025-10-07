@@ -25,18 +25,6 @@ example: my_map (fun s => s.length) ["hello", "a", "world"] = [5,1,5] := sorry
 theorem map_map_comp {α β γ : Type} (f : α → β) (g : β → γ) (l : List α) :
   my_map (g ∘ f) l = my_map g (my_map f l) := by sorry
 
--- Exercise: write filter where it takes out items that are not in the list
-def my_filter {α : Type} (p : α → Bool) : List α → List α
-| [] => []
-| a :: as => sorry
-
-example: my_filter (fun x => x % 2 == 0) [1, 2, 3, 4, 5, 6] = [2,4,6] := sorry
-example: my_filter (fun s => s.startsWith "a") ["apple", "banana", "apricot", "kiwi"] =  ["apple", "apricot"] := sorry
-
--- Prove this:
-theorem filter_append {α : Type} (p : α → Bool) (l1 l2 : List α) :
-  my_filter p (l1 ++ l2) = (my_filter p l1) ++ (my_filter p l2) := by sorry
-
 -- Exercise: write foldl
 -- The foldl function (also known as reduce or fold-left)
 -- combines the elements of a list using a binary operator,

@@ -6,6 +6,9 @@ set_option tactic.hygienic false
 
 @[simp,grind] def Nat.MinOfList (a :ℕ ) (t: List ℕ) : Prop := ∀ y ∈ t, a ≤ y
 
+-- Let's discuss in English
+-- How do define inductively of sortedness
+
 -- inductive predicate
 inductive Sorted: List ℕ  → Prop
   | nil : Sorted []
