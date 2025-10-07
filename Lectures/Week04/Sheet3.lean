@@ -75,17 +75,36 @@ example: my_filter (fun s => s.startsWith "a") ["apple", "banana", "almond", "ki
 theorem filter_append {α : Type} (p : α → Bool) (l1 l2 : List α) :
   my_filter p (l1 ++ l2) = (my_filter p l1) ++ (my_filter p l2) := by sorry
 
--- # Exercise 3.2: Define IsPalindrome
--- This should be true if and only if it can be read in forward and reverse direction
--- e.g., 'a', 'aba', 'aabbcbbaa'
 
-inductive IsPalindrome {α : Type} : List α → Prop
---  | nil :  ??
---  | single (a : α) :  ??
---  | cons_eq (a : α) (l : List α) :  ??
+-- # Exercise 3.2: write foldl
+-- The foldl function (also known as reduce or fold-left)
+-- combines the elements of a list using a binary operator,
+-- starting from an initial value. It "folds" the list into a single value.
+-- f: the combining function (accumulator -> element -> new_accumulator)
+-- b: the initial base value (accumulator)
 
-theorem IsPalindrome_imp_eq_reverse {α : Type} (l : List α) :
-  IsPalindrome l → l = List.reverse l := by sorry
+def my_foldl {α β : Type} (f : β → α → β) (b : β) : List α → β
+| [] => b
+| a :: as => sorry
 
-theorem IsPalindrome_pmi_eq_reverse {α : Type} (l : List α) :
-  l = List.reverse l → IsPalindrome l  := by sorry
+example: my_foldl (fun acc x => acc + x) 0 [1, 2, 3, 4] = 10 := sorry
+example: my_foldl (fun acc x => x :: acc) ([] : List Nat) [1, 2, 3] = [3, 2, 1] := sorry
+
+-- Theorem
+theorem foldl_append {α β : Type} (f : β → α → β) (b : β) (l1 l2 : List α) :
+  my_foldl f b (l1 ++ l2) = my_foldl f (my_foldl f b l1) l2 := by sorry
+
+
+
+-- # Exercise 3.3: Write map function that operates on lists
+def my_map {α β : Type} (f : α → β) : List α → List β
+| [] => []
+| a :: as => sorry
+
+example: my_map (fun x => x + 1) [1, 2, 3] = [2,3,4] := sorry
+example: my_map (fun s => s.length) ["hello", "a", "world"] = [5,1,5] := sorry
+
+-- Theorem: map composition
+-- (f : α → β) (g : β → γ) (l : List α)
+theorem map_map_comp {α β γ : Type} (f : α → β) (g : β → γ) (l : List α) :
+  my_map (g ∘ f) l = my_map g (my_map f l) := by sorry
