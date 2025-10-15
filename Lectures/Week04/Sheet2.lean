@@ -25,15 +25,16 @@ inductive Color
 #check Color
 #check Color.Red
 
+-- Lean can infer the type of the constructor
 inductive Color'
 | Red
 | Green
 | Blue
 
 def favoriteColor : Color → String
-| .Red   => "Red is lovely"
-| .Green => "Green is calming."
-| .Blue  => "Blue is clear."
+| Color.Red   => "Red is lovely"
+| Color.Green => "Green is calming."
+| Color.Blue  => "Blue is clear."
 
 def favoriteColor2 (c : Color) : String := match c with
 | .Red   => "Red is lovely"
@@ -47,6 +48,8 @@ def favoriteColor2 (c : Color) : String := match c with
 inductive OptionNat
 | none
 | some : ℕ → OptionNat
+
+#check OptionNat
 
 #check OptionNat.none
 #check OptionNat.some
@@ -120,6 +123,7 @@ inductive List (α : Type)
 -- 2. cons x xs where x : α and xs : List α
 -- {[], [x], [x₁ x₂], [x₁ x₂ x₃] … }
 #check List ℕ
+#check (List.nil : List ℕ)
 -- []
 #check (List.cons 1 .nil)
 -- [1]
@@ -139,6 +143,28 @@ inductive ListF (α : Type)
 -- Define a type of binary tree
 -- it is a leaf or a node with two subtrees
 inductive BinaryTree (α : Type)
+
+
+inductive BinaryTree1 (α : Type)
+| leaf (a : α)
+| node (l : BinaryTree1 α) (r : BinaryTree1 α) (a : α)
+-- might miss some tree
+
+inductive BinaryTree2 (α : Type)
+| leaf
+| node (left : BinaryTree2 α) (right : BinaryTree2 α)
+--
+
+inductive BinaryTree3 (α : Type)
+| nil
+| node (a : α) (l: BinaryTree3 α) (r: BinaryTree3 α)
+
+
+inductive BinaryTree4 (α : Type)
+| nil
+| node  (l: BinaryTree4 α)(a : α) (r: BinaryTree4 α)
+
+
 
 
 end MyList

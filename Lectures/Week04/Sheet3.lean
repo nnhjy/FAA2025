@@ -13,8 +13,8 @@ def append {α : Type} : List α → List α → List α
 
 #check append
 #eval append [1, 2, 3] [4, 5, 6]
--- In Mathlib, append has notation ++
 
+-- In Mathlib, append has notation ++
 #eval [1,2,10,3] ++ [4,5,6]
 
 -- # Example: compute the length of a list
@@ -22,7 +22,14 @@ def len {α : Type} : List α → ℕ
 | []     =>  0
 | _ :: xs => 1 + len xs
 
+-- def len_b {α : Type} (l : List α ) : ℕ := match l with
+-- | []     =>  0
+-- | _ :: xs => 1 + len xs
+
+#eval len [0,1,2,1,1]
+
 #check len.induct
+--#check len_b.induct
 #check len
 
 -- proof by recursion
@@ -42,7 +49,7 @@ theorem len_append_cases (x : ℕ) (l : List ℕ) : len (l ++ [x]) = 1 + len l  
     simp only [Nat.add_left_cancel_iff]
     apply len_append_cases
 
--- proof by induction
+-- proof by induction (Structural Induction)
 theorem len_append_induction (x : ℕ) (l : List ℕ) : len (l ++ [x]) = 1 + len l  := by
   induction' l with y ys
   · aesop
