@@ -9,18 +9,35 @@ set_option tactic.hygienic false
 -- e.g., 'a', 'aba', 'aabbcbbaa'
 
 inductive IsPalindrome {α : Type} : List α → Prop
---  | nil :  ??
---  | single (a : α) :  ??
---  | cons_eq (a : α) (l : List α) :  ??
+  | nil : IsPalindrome ([])
+  | single (a : α) : IsPalindrome ([a])
+  | cons_eq (a : α) (l : List α) :  IsPalindrome (l) → IsPalindrome (a::l ++[a])
 
 theorem IsPalindrome_imp_eq_reverse {α : Type} (l : List α) :
-  IsPalindrome l → l = List.reverse l := by sorry
+  IsPalindrome l → l = List.reverse l := by
+  intro h
+  induction' h
+  · simp only [List.reverse_nil]
+  · simp only [List.reverse_cons, List.reverse_nil, List.nil_append]
+  · simpa
 
+-- Challenging one :)
 theorem IsPalindrome_pmi_eq_reverse {α : Type} (l : List α) :
   l = List.reverse l → IsPalindrome l  := by sorry
 
 theorem IsPalindrome_reverse {α : Type} (l : List α) (h: IsPalindrome l) :
-   IsPalindrome l.reverse  := by sorry
+   IsPalindrome l.reverse  := by
+  induction' h
+  · simp only [List.reverse_nil]
+    exact IsPalindrome.nil
+  · simp
+    exact IsPalindrome.single a
+  · rw [← IsPalindrome_imp_eq_reverse (a :: l_1 ++ [a]) ?_]
+    all_goals
+    apply IsPalindrome.cons_eq
+    exact a_1
+
+
 
 -- # Exercise: Binary Tree, Mirror and Complete Binary Tree
 -- Define BinaryTree as follows
@@ -36,10 +53,16 @@ def mirror : BinaryTree → BinaryTree
 
 --  Prove that mirror of mirror of a tree is the tree itself.
 theorem mirror_mirror (t : BinaryTree) :
-    mirror (mirror t) = t := by sorry
+    mirror (mirror t) = t := by
+    fun_induction mirror t
+    · aesop
+    · grind [mirror]
 
 --  Prove that mirror of mirror of a tree is the tree itself.
-theorem mirror_nil_iff (r : BinaryTree): mirror r = BinaryTree.nil ↔ r = BinaryTree.nil := by sorry
+theorem mirror_nil_iff (r : BinaryTree): mirror r = BinaryTree.nil ↔ r = BinaryTree.nil := by
+  induction' r
+  · simp only [mirror]
+  · simp only [mirror, reduceCtorEq]
 
 -- A binary tree is complete if every node has either two non-empty subtrees or two empty subtrees.
 -- We can define it using inductive predicate as follows.
@@ -54,4 +77,13 @@ inductive Complete : BinaryTree  → Prop
 -- Prove that if t is complete then its mirroring is also complete.
 theorem complete_mirror  (t : BinaryTree)
       (ht : Complete t) :
-    Complete (mirror t) := by sorry
+    Complete (mirror t) := by
+    induction' ht
+    · exact Complete.leaf
+    · simp only [mirror]
+      apply Complete.node
+      · exact hr_ih
+      · exact hl_ih
+      · rw [mirror_nil_iff,mirror_nil_iff]
+        symm at hiff
+        exact hiff
