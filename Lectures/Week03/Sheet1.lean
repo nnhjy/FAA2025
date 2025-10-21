@@ -1,6 +1,7 @@
 import Mathlib.Tactic -- imports all of the tactics in Lean's maths library
-import Lectures.Week_3.Sheet0'
+import Lectures.Week03.Sheet0
 set_option autoImplicit false
+
 
 
 /-!
@@ -12,9 +13,6 @@ set_option autoImplicit false
 
   In lean, you can use induction' tactics to do so.
 -/
-
--- Lean statement is the following:
---theorem induction (P : ℕ → Prop) (hb: P 0) (hi: ∀ i, P i → P (i+1)) : ∀ i, P i := by sorry
 
 #check Nat.and_forall_add_one
 
@@ -30,31 +28,15 @@ example (n:ℕ): I n = n := by
   induction' n with n ih
   · rfl
   · unfold I
-    rewrite [ih]
-    rfl
+    rw [ih]
 
 -- Exercise 1
 def I2 : ℕ → ℕ
   | 0 => 0
   | n + 1 => I2 n + 2
 
-def I2' (n :ℕ): ℕ := match n with
-  | 0 => 0
-  | n + 1 => I2 n + 2
-
-#eval [I2 0, I2 1, I2 2, I2 10]
-example (n:ℕ): I2 n = 2*n := by
---by Basil Rohner
-  induction' n with n ih
-  · rw [I2]
-  · rw [I2, ih, Nat.mul_add]
-
---by Lucas Werner
-  -- induction' n with n ih
-  -- · rfl
-  -- · rw [I2, ih]
-  --   rfl
-
+#eval [I2 0, I2 1, I2 2]
+example (n:ℕ): I2 n = 2*n := by sorry
 
 -- Another example
 example (n:ℕ): Even (I2 n) := by
@@ -71,17 +53,7 @@ example (n:ℕ): Even (I2 n) := by
     omega
 
 -- Exercise 2
-theorem even_or_odd (n : ℕ) : (∃ k, n = 2*k) ∨ (∃ k, n = 2*k+1) := by
-  induction' n with n ih
-  · simp
-  · obtain ⟨k,hk⟩ | ⟨k,hk⟩ := ih
-    · right
-      use k
-      rw [hk]
-    · left
-      use k+1
-      rw [hk]
-      omega
+theorem even_or_odd (n : ℕ) : (∃ k, n = 2*k) ∨ (∃ k, n = 2*k+1) := by sorry
 
 def S : ℕ → ℕ
   | 0 => 0
@@ -94,17 +66,9 @@ def S : ℕ → ℕ
 #check mul_comm
 
 -- Exercise 3
-lemma Sn_two (n : ℕ) : 2*(S n) = n * (n + 1)  := by
--- by  Basil Rohner
-  induction' n with n ih
-  · rw [S]
-  · rw [S, Nat.mul_add, ih]
-    ring
+lemma Sn_two (n : ℕ) : 2*(S n) = n * (n + 1)  := by sorry
 
-example (n : ℕ) : (S n) = n * (n + 1)/2  := by
-  rw [← Sn_two]
-  simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, mul_div_cancel_left₀]
-
+example (n : ℕ) : (S n) = n * (n + 1)/2  := by sorry
 
 -- It is much easier to work with type ℚ
 -- Example
@@ -136,7 +100,6 @@ for `induction'`). -/
 #check Nat.decreasingInduction
 #check Nat.div2Induction
 
-
 -- Example
 example : ∀ n ≥ 5, 2 ^ n > n ^ 2 := by
   intro n h
@@ -146,22 +109,7 @@ example : ∀ n ≥ 5, 2 ^ n > n ^ 2 := by
     exact power_two_ih n ih h
 
 -- Exercise 4
-lemma le_fact (n : ℕ) : 1 ≤ (n)! := by
--- Pratyai Mazumder -
-  induction' n with n h
-  . trivial
-  . rw [factorial]
-    grw [<- h]
-    simp
+lemma le_fact (n : ℕ) : 1 ≤ (n)! := by sorry
 
 -- Exercise 5
-example (n : ℕ) : 2^n ≤ (n+1)! := by
-  induction' n with n ih
-  · decide
-  · unfold factorial
-    rw [add_assoc n 1 1]
-    simp
-    rw [pow_succ' 2 n]
-    grw [ih]
-    gcongr
-    omega
+example (n : ℕ) : 2^n ≤ (n+1)! := by sorry

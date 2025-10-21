@@ -1,5 +1,5 @@
 import Mathlib.Tactic -- imports all of the tactics in Lean's maths library
-import Lectures.Week_3.Sheet0
+import Lectures.Week03.Sheet0
 set_option autoImplicit false
 
 /-!

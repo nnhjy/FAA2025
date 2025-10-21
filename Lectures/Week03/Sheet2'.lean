@@ -1,6 +1,6 @@
 import Mathlib.Tactic -- imports all of the tactics in Lean's maths library
-import Lectures.Week_3.Sheet0
-import Lectures.Week_3.Sheet1
+import Lectures.Week03.Sheet0
+import Lectures.Week03.Sheet1
 
 set_option autoImplicit false
 
@@ -47,15 +47,18 @@ example (x: ℕ): fib x ≤ 2^x := by
 
 -- Exercise 5
 example (x: ℕ): fib x ≤ 2^x := by
+-- by Yuchen Zhong - Wednesday, 1 October 2025, 3:37 PM
   induction x using Nat.twoStepInduction
   · simp [fib]
   · simp [fib]
   · expose_names
     unfold fib
-    grw [h, h_1]
+    grw [h,h_1]
     rw [pow_add 2 n 2]
-    rw [Nat.pow_two]
+    rw [Nat.pow_add_one 2 n]
     omega
+
+
 
 -- Define the following recurrence relation
 -- f (n) ≤ n + 2* f(n/2)
@@ -67,7 +70,7 @@ def f (n : ℕ): ℕ :=
 
 def f_closed (n : ℕ) : ℚ := n * (Nat.log 2 n)+n
 
-#eval (List.map f [0,1,2,3,4,5,6,7,8])
+#eval (List.map f        [0,1,2,3,4,5,6,7,8])
 #eval (List.map f_closed [0,1,2,3,4,5,6,7,8])
 
 -- Example
@@ -78,7 +81,6 @@ def f_closed (n : ℕ) : ℚ := n * (Nat.log 2 n)+n
     simp only [Nat.pow_eq_zero, OfNat.ofNat_ne_zero, ne_eq, Nat.add_eq_zero, one_ne_zero, and_false,
       not_false_eq_true, and_true, ↓reduceIte]
     ring_nf
-    -- use rw?? tactic to simplify a specific expression
     rw [Nat.mul_div_left (2 ^ i) (by norm_num)]
     grw [ih]
     linarith
@@ -94,11 +96,7 @@ def g_close (n :ℕ ) : ℕ  :=  Nat.log 2 n + 1
 #eval (List.map g_close [0,1,2,3,4,5,6,7,8,1000])
 
 example (n :ℕ): g (2^n) ≤ n+1 := by
-  induction' n with i ih
-  · simp [g]
-  · unfold g
-    simp only [Nat.pow_eq_zero, OfNat.ofNat_ne_zero, ne_eq, Nat.add_eq_zero, one_ne_zero, and_false,
-      not_false_eq_true, and_true, ↓reduceIte, add_le_add_iff_right]
-    ring_nf
-    rw [Nat.mul_div_left (2 ^ i) (by norm_num)]
-    linarith
+-- Pratyai Mazumder - Wednesday, 1 October 2025, 3:42 PM
+induction' n with n ih
+. simp; rw [g]; simp; rw [g]; simp
+. rw [Nat.pow_add]; simp; rw [g]; simp; trivial
