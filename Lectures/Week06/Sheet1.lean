@@ -55,17 +55,6 @@ else
 -- Let's assume sorted_merge for now; we will prove sorted_merge in the next sheet
 theorem sorted_merge(l1 l2 : List ℕ)(hxs: Sorted l1) (hys: Sorted l2): Sorted (Merge l1 l2) := by sorry
 
--- To better organize and modularize the proof, it is advisable to formulate a standalone lemma
-theorem sorted_base_case (x : List ℕ) (h : x.length < 2) : Sorted x := by
-  cases x
-  · exact Sorted.nil
-  · simp [Nat.add_lt_iff_lt_sub_right] at h
-    rw [h]
-    exact Sorted.single head
-
 #check MergeSort.induct
 -- Exercise 1.1: use sorted_merge theorem to prove that MergeSort outputs a sorted list
-theorem MS_Sorted (xs : List ℕ ): Sorted (MergeSort xs) := by
-  fun_induction MergeSort xs
-  · exact sorted_base_case x h
-  · exact sorted_merge l1' l2' ih2 ih1
+theorem MS_Sorted (xs : List ℕ ): Sorted (MergeSort xs) := by sorry
