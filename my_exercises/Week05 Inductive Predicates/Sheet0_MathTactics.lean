@@ -11,6 +11,7 @@ set_option tactic.hygienic false
   * `cancel_denoms` -- try to cancel denominators of fraction
   * `positivity`-- Tactic solving goals of the form 0 ≤ x, 0 < x and x ≠ 0
   * `zify / qify / rify` -- shift an inequality goal to ℤ / ℚ / ℝ
+    HW2 provides an example of using `zify`
 -/
 
 -- # `suffices P by X`
@@ -22,6 +23,12 @@ example (A B C : Prop) (hAB : A → B) (hBC : B → C)  (hA : A) :C := by
   trans B
   · exact hAB
   · exact hBC
+
+-- c.f. `apply` tactics
+example (A B C : Prop) (hAB : A → B) (hBC : B → C)  (hA : A) :C := by
+  apply hBC
+  apply hAB
+  exact hA
 
 -- c.f. `have` tactics
 example (A B C : Prop) (hAB : A → B) (hBC : B → C)  (hA : A) :C := by
@@ -47,8 +54,7 @@ example (a :ℕ) (h: 3 ≤ a) : 0 ≤ a := by
   -- plausible
 
 -- # `cancel_denoms`
--- try to cancel denominators of fraction
-
+-- try to cancel denominators of fraction `in hypotheses`
 example (a b c :ℝ) (h : a / 5 + b / 4 < c) : 4*a + 5*b < 20*c := by
   cancel_denoms at h
   exact h
