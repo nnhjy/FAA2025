@@ -14,7 +14,7 @@ Lean provides a powerful suite of "tactics" that can perform calculations, simpl
 * `simp` -- perform a sequence of simplifications.
 * `grw` -- same as rw [e], but e can be a relation other than = or ↔
 * `rel` -- apply `grw` to solve a relational goal by "substitution"
-* `rw??` -- specific rw by clicking in the info view
+* `rw??` -- specific `rw` by clicking in the info view
 * `gcongr` -- reduce a relational goal between a LHS and RHS matching the same pattern and outputs new simplified subgoals
 
 -- Solver
@@ -24,8 +24,12 @@ Lean provides a powerful suite of "tactics" that can perform calculations, simpl
 * `omega` --  solve integer and natural linear arithmetic problems.
 * `linarith` -- solve linear arithmetic over the rationals
 
--- Remark
-* `aesop` and `grind` -- too powerful automation (we will not use these two this week)
+-- Powerful automation tactics
+* `aesop` -- general-purpose automation tactic
+          -- can handle a wide variety of goals, including those involving inductive types, algebraic structures, and logical reasonin
+          -- allow customiseing the tactic behavior using aesop rules
+* `grind` -- combines `simp`, `intro`, `cases`, `contradiction`, etc.
+too powerful automation (we will not use these two this week)
 -/
 
 
