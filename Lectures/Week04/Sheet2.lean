@@ -142,29 +142,16 @@ inductive ListF (α : Type)
 -- # Exercise 2.1
 -- Define a type of binary tree
 -- it is a leaf or a node with two subtrees
+
+-- correct
 inductive BinaryTree (α : Type)
+| nil
+| node  (l: BinaryTree α)(a : α) (r: BinaryTree α)
 
 
-inductive BinaryTree1 (α : Type)
-| leaf (a : α)
-| node (l : BinaryTree1 α) (r : BinaryTree1 α) (a : α)
--- might miss some tree
-
-inductive BinaryTree2 (α : Type)
+-- Incorrect one
+inductive BinaryTree_no_node (α : Type)
 | leaf
-| node (left : BinaryTree2 α) (right : BinaryTree2 α)
---
-
-inductive BinaryTree3 (α : Type)
-| nil
-| node (a : α) (l: BinaryTree3 α) (r: BinaryTree3 α)
-
-
-inductive BinaryTree4 (α : Type)
-| nil
-| node  (l: BinaryTree4 α)(a : α) (r: BinaryTree4 α)
-
-
-
+| node (left : BinaryTree_no_node α) (right : BinaryTree_no_node α)
 
 end MyList
