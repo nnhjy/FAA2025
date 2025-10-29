@@ -166,3 +166,96 @@ class LawfulMonad (m : Type → Type)
 -- To use this definition with a specific monad,
 -- we need to provide the type constructor m (for example, Option),
 -- along with the bind and pure functions, and verify that they satisfy the required monad laws.
+
+
+--------------------------------------------------------------------------------
+-- Exercise 1: Identity Monad (Warm-up)
+--------------------------------------------------------------------------------
+-- The identity monad just wraps a value with no additional structure.
+-- Our first monad is the trivial monad `m := id` (i.e., `m := (fun α ↦ α)`). -/
+
+def id.pure {α : Type} : α → id α
+  | a => a
+
+def id.bind {α β : Type} : id α → (α → id β) → id β
+  | a, f => f a
+
+-- Exercise: Prove that Id is a lawful monad
+
+instance id.LawfulMonad : LawfulMonad id :=
+  { pure       := id.pure
+    bind       := id.bind
+    pure_bind  :=
+      by sorry
+    bind_pure  :=
+      by sorry
+    bind_assoc :=
+      by sorry
+         }
+
+--------------------------------------------------------------------------------
+-- Exercise 2: Option Monad
+--------------------------------------------------------------------------------
+-- Already defined in Lean, but let's prove the laws explicitly.
+
+
+def Option.pure {α : Type} : α → Option α :=
+  Option.some
+
+def Option.bind {α β : Type} :
+  Option α → (α → Option β) → Option β
+  | Option.none,   _ => Option.none
+  | Option.some a, f => f a
+
+instance Option.LawfulMonad : LawfulMonad Option :=
+  { pure       := Option.pure
+    bind       := Option.bind
+    pure_bind  :=
+      by sorry
+    bind_pure  :=
+      by sorry
+    bind_assoc :=
+      by sorry }
+
+-- Hint: You'll need to case split on Option values (none vs some)
+-- Use: cases ma with | none => ... | some a => ...
+
+--------------------------------------------------------------------------------
+-- Exercise 3: State Monad
+--------------------------------------------------------------------------------
+
+/- ## Mutable State
+The state monad offers a way to model stateful computations. -/
+
+def Action (σ α : Type) : Type :=
+  σ → α × σ
+
+def Action.read {σ : Type} : Action σ σ
+  | s => (s, s)
+
+def Action.write {σ : Type} (s : σ) : Action σ Unit
+  | _ => ((), s)
+
+/- `Action.pure` leaves the state unchanged, similar to a `return` statement.
+   `Action.bind` sequences two operations, threading state from one to the next. -/
+
+def Action.pure {σ α : Type} (a : α) : Action σ α
+  | s => (a, s)
+
+def Action.bind {σ : Type} {α β : Type} (ma : Action σ α)
+      (f : α → Action σ β) :
+    Action σ β
+  | s =>
+    match ma s with
+    | (a, s') => f a s'
+
+instance Action.LawfulMonad {σ : Type} :
+  LawfulMonad (Action σ) :=
+  { pure       := Action.pure
+    bind       := Action.bind
+    pure_bind  :=
+      by sorry
+    bind_pure  :=
+      by sorry
+    bind_assoc :=
+      by sorry}
