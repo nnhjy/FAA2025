@@ -26,3 +26,4 @@ theorem sorted_is_preserved_by_min_cons {a : ℕ} {t : List ℕ} (hmin : a.MinOf
   exact Sorted.cons_min a t hmin ht
 
 theorem sorted_suffix {x : ℕ} {xs : List ℕ} (hxs : Sorted (x :: xs)) : Sorted xs := sorry
+-- Homework

@@ -34,15 +34,16 @@ def list2 := [3,5,20]
 #eval Merge list1 list2
 
 -- Define split list into two halves
--- List.take -- Extracts the first n elements of xs, or the whole list if n is greater than xs.length.
--- List.drop -- Removes the first n elements of the list xs. Returns the empty list if n is greater than the length of the list.
+-- `List.take` -- Extracts the first n elements of xs, or the whole list if n is greater than xs.length.
+-- `List.drop` -- Removes the first n elements of the list xs. Returns the empty list if n is greater than the length of the list.
 #check List.take
 #eval [1,2,3,4,5].take 3
 #check List.drop
 #eval [1,2,3,4,5].drop 3
+#eval [1,2,3,4,5].length/2
 
 -- Merge sort
-def MergeSort (x : List ℕ ) : List ℕ  :=
+def MergeSort (x : List ℕ ) : List ℕ :=
 if x.length < 2 then x
 else
   let mid := x.length/2
@@ -52,9 +53,10 @@ else
   let l2' := MergeSort l2
   Merge l1' l2'
 
--- Let's assume sorted_merge for now; we will prove sorted_merge in the next sheet
+-- Let's assume sorted_merge for now; we will prove it *in the next sheet* `Sheet2`
 theorem sorted_merge(l1 l2 : List ℕ)(hxs: Sorted l1) (hys: Sorted l2): Sorted (Merge l1 l2) := by sorry
 
+#print Sorted
 theorem MS_Sorted.basecase (x : List ℕ ) (h : x.length < 2) : Sorted x := by
   cases x
   · exact Sorted.nil
