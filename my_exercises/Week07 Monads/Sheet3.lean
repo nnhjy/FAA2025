@@ -26,8 +26,8 @@ def example3 : Option ℕ :=
 def example3' : Option ℕ := do
   let r1 ← safeDivide 100 2   -- Unbox r1 = 50
   let r2 ← safeDivide r1 5    -- Unbox r2 = 10
-  pure (r2 + 3)
-            -- Wrap result: some 13
+  pure (r2 + 3)               -- Wrap result: some 13
+
 #eval example3'  -- some 13
 
 -- # When the first statement of the do block is 'let x ← E' expression.
@@ -105,7 +105,7 @@ def complexCompute'' (a b c d e : ℕ) : Option ℕ :=
 -- ============================================
 
 /-
-Implement a function that computes: (a / b) * (c / d) + (e / f)
+Implement a function that computes: `(a / b) * (c / d) + (e / f)`
 
 Requirements:
 1. Divide a by b (use safeDivide)
@@ -129,24 +129,40 @@ Part A: Implement using do notation
 -/
 
 def computeExpr (a b c d e f : ℕ) : Option ℕ := do
-  sorry  -- Your code here
+  -- Your code here
+  let x ← safeDivide a b
+  let y ← safeDivide c d
+  let prod ← safeMult x y
+  let z ← safeDivide e f
+  let result ← safeAdd prod z
+  pure result
 
 /-
 Part B: Implement the SAME function WITHOUT do notation
-(translate your do notation to explicit >>= operators)
+(translate your do notation to explicit `>>=` operators)
 -/
 
 def computeExpr' (a b c d e f : ℕ) : Option ℕ :=
-  sorry  -- Your code here
-
+  -- Your code here
+  safeDivide a b >>= fun x =>
+  safeDivide c d >>= fun y =>
+  safeMult x y >>= fun prod =>
+  safeDivide e f >>= fun q =>
+  safeAdd prod q >>= fun result =>
+  pure result
 
 -- Test cases (uncomment after implementing):
--- #eval computeExpr 20 4 15 3 10 2    -- some 30  because (20/4) * (15/3) + (10/2) = 5 * 5 + 5 = 30
--- #eval computeExpr 20 0 15 3 10 2    -- none     (division by zero in first division)
--- #eval computeExpr 20 4 15 0 10 2    -- none     (division by zero in second division)
--- #eval computeExpr 20 4 15 3 10 0    -- none     (division by zero in third division)
--- #eval computeExpr 12 3 8 2 6 3      -- some 18  because (12/3) * (8/2) + (6/3) = 4 * 4 + 2 = 18
+#eval computeExpr 20 4 15 3 10 2    -- some 30  because (20/4) * (15/3) + (10/2) = 5 * 5 + 5 = 30
+#eval computeExpr 20 0 15 3 10 2    -- none     (division by zero in first division)
+#eval computeExpr 20 4 15 0 10 2    -- none     (division by zero in second division)
+#eval computeExpr 20 4 15 3 10 0    -- none     (division by zero in third division)
+#eval computeExpr 12 3 8 2 6 3      -- some 18  because (12/3) * (8/2) + (6/3) = 4 * 4 + 2 = 18
 
+#eval computeExpr' 20 4 15 3 10 2    -- some 30  because (20/4) * (15/3) + (10/2) = 5 * 5 + 5 = 30
+#eval computeExpr' 20 0 15 3 10 2    -- none     (division by zero in first division)
+#eval computeExpr' 20 4 15 0 10 2    -- none     (division by zero in second division)
+#eval computeExpr' 20 4 15 3 10 0    -- none     (division by zero in third division)
+#eval computeExpr' 12 3 8 2 6 3
 
 namespace FAA
 
@@ -174,6 +190,8 @@ class LawfulMonad (m : Type → Type)
 -- The identity monad just wraps a value with no additional structure.
 -- Our first monad is the trivial monad `m := id` (i.e., `m := (fun α ↦ α)`). -/
 
+#check id
+
 def id.pure {α : Type} : α → id α
   | a => a
 
@@ -183,15 +201,22 @@ def id.bind {α β : Type} : id α → (α → id β) → id β
 -- Exercise: Prove that Id is a lawful monad
 
 instance id.LawfulMonad : LawfulMonad id :=
-  { pure       := id.pure
+  {
+    pure       := id.pure
     bind       := id.bind
-    pure_bind  :=
-      by sorry
-    bind_pure  :=
-      by sorry
-    bind_assoc :=
-      by sorry
-         }
+    pure_bind  := by
+      intros α β a f
+      unfold id.pure id.bind
+      rfl
+    bind_pure  := by
+      intros α ma
+      unfold id.bind id.pure
+      rfl
+    bind_assoc := by
+      intros α β γ f g ma
+      unfold id.bind
+      rfl
+  }
 
 --------------------------------------------------------------------------------
 -- Exercise 2: Option Monad
@@ -208,14 +233,28 @@ def Option.bind {α β : Type} :
   | Option.some a, f => f a
 
 instance Option.LawfulMonad : LawfulMonad Option :=
-  { pure       := Option.pure
+  {
+    pure       := Option.pure
     bind       := Option.bind
-    pure_bind  :=
-      by sorry
-    bind_pure  :=
-      by sorry
-    bind_assoc :=
-      by sorry }
+    pure_bind  := by
+      intros α β a f
+      unfold Option.pure Option.bind
+      rfl
+    bind_pure  := by
+      intros α ma
+      unfold Option.pure Option.bind
+
+      cases ma <;> rfl  -- grind
+      -- cases ma with
+      -- | none => rfl
+      -- | some a => rfl
+    bind_assoc := by
+      intros α β γ f g ma
+      unfold Option.bind
+
+      cases ma <;> rfl
+      -- grind
+  }
 
 -- Hint: You'll need to case split on Option values (none vs some)
 -- Use: cases ma with | none => ... | some a => ...
@@ -229,12 +268,52 @@ The state monad offers a way to model stateful computations. -/
 
 def Action (σ α : Type) : Type :=
   σ → α × σ
+/-
+An `Action σ α` is a computation that:
+- Takes an initial state of type σ
+- Returns a result of type α and a new state of type σ
 
+Think of it as: "An action that transforms state and produces a value"
+Type Parameters
+σ (sigma) - the `state` type
+α (alpha) - the return `value` type
+
+# Intuitive example: A computation on integers that returns a string
+  Action ℕ String : Type
+  = ℕ → String × ℕ
+- Takes state (ℕ), returns (String, new state ℕ)
+-/
+
+-- Returns the current state as the result, without modifying it.
 def Action.read {σ : Type} : Action σ σ
   | s => (s, s)
 
+#eval Action.read 42  -- (42, 42)
+-- "Read the state 42, return it, keep state as 42"
+
+-- Replaces the state with a new value, returns nothing meaningful (`Unit`).
 def Action.write {σ : Type} (s : σ) : Action σ Unit
   | _ => ((), s)
+#check Action.write
+/-
+  Input: A new state value s : σ
+  Output: An action Action σ Unit
+
+- `Action.write new_state` creates a function that:
+  Ignores whatever the current state is (by `_`)
+  Replaces it with `new_state`
+  Returns `()` as a dummy value (since we only care about the state change)
+# The pattern | _ => ((), s) means "for any input state, return unit and the new state s"
+- Think of it as: "Forget the old state, set it to this new value, and return nothing meaningful."
+-/
+
+-- # Equivalent to
+-- def Action.write {σ : Type} (s : σ) : Action σ Unit :=
+--   fun old_state => ((), s)
+
+#eval Action.write 100 42  -- ((), 100)
+--  The `PUnit.unit` is just Lean's way of printing `()`
+-- "Ignore old state 42, set state to 100, return ()"
 
 /- `Action.pure` leaves the state unchanged, similar to a `return` statement.
    `Action.bind` sequences two operations, threading state from one to the next. -/
@@ -242,20 +321,28 @@ def Action.write {σ : Type} (s : σ) : Action σ Unit
 def Action.pure {σ α : Type} (a : α) : Action σ α
   | s => (a, s)
 
-def Action.bind {σ : Type} {α β : Type} (ma : Action σ α)
-      (f : α → Action σ β) :
-    Action σ β
+def Action.bind {σ : Type} {α β : Type}
+  (ma : Action σ α) (f : α → Action σ β)
+  : Action σ β
   | s =>
     match ma s with
     | (a, s') => f a s'
 
 instance Action.LawfulMonad {σ : Type} :
   LawfulMonad (Action σ) :=
-  { pure       := Action.pure
+  {
+    pure       := Action.pure
     bind       := Action.bind
-    pure_bind  :=
-      by sorry
-    bind_pure  :=
-      by sorry
-    bind_assoc :=
-      by sorry}
+    pure_bind  := by
+      intros α β a f
+      unfold Action.pure Action.bind
+      rfl
+    bind_pure  := by
+      intros α ma
+      unfold Action.pure Action.bind
+      rfl
+    bind_assoc := by
+      intros α β γ f g ma
+      unfold Action.bind
+      rfl
+  }

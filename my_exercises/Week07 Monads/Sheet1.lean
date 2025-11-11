@@ -8,12 +8,14 @@ set_option tactic.hygienic false
 
 def has_sqrt (n : ℕ) : Prop := ∃ m : ℕ, m * m = n
 def sqrt_if_perfect (n : ℕ) (h : has_sqrt n) : 1=1 := by
+  -- # in proof mode like this ...
   obtain ⟨ _, _ ⟩ := h
-  sorry --? How to extract the witness
+  rfl
 
 noncomputable
 def sqrt_if_perfect' (n : ℕ) (h : has_sqrt n) : ℕ := h.choose
 -- `obtain ⟨ _, _ ⟩ := h` not applicable here since `ℕ` is not proof mode (nothing to be proved)
+-- How to extract the witness?
 
 -- In Lean, you can use `Classical.choose`.
 #check Classical.choose
@@ -21,17 +23,19 @@ def sqrt_if_perfect' (n : ℕ) (h : has_sqrt n) : ℕ := h.choose
 -- side effect: relies on Axiom of choice. In Lean, `h: nonempty α`, which is non-constructive
 -- alternative (also mentioned later)
 -- (1) define an algorithm for extreme witness
--- (2) prove that α is finite, use `Fintype.choose`
+-- (2) prove that `α` is finite, use `Fintype.choose`
 
-noncomputable def witness_perfect  (n : ℕ) (h : has_sqrt n) : ℕ := h.choose
+noncomputable
+def witness_perfect  (n : ℕ) (h : has_sqrt n) : ℕ := h.choose
 def witness_perfect_spec (n : ℕ) (h : has_sqrt n) := h.choose_spec
 
 #check witness_perfect
 #check witness_perfect_spec
 
--- Side effect: this choose function relies on the axiom of choice, require marking the corresponding function `noncomputable`.
+-- Side effect: this choose function relies on the axiom of choice,
+-- and requires marking the corresponding function `noncomputable`.
 
--- Sorts are the classifications of types.
+-- `Sort`s are the classifications of types.
 -- We can think of `Sort u` as a type with differnet level of universes.
 -- The first level of the universe is `Sort 0` which is Prop.
 
@@ -42,7 +46,7 @@ def witness_perfect_spec (n : ℕ) (h : has_sqrt n) := h.choose_spec
 
 #print Classical.choice
 
--- `Classical.choice` takes a proof h that a type α is nonempty and produces an element of α.
+-- `Classical.choice` takes a proof `h` that a `type α` is nonempty and produces an element of `α`.
 -- However, since h lives in Prop, it doesn’t provide any constructive information about which element exists.
 -- As a result, Classical.choice is noncomputable — it asserts existence but gives no way to actually find the element.
 
@@ -63,8 +67,9 @@ noncomputable def arbitraryNat : ℕ := Classical.choice Nat.Nonempty
 def some_prop : Prop := 1 = 1
 
 def sqrt_if_perfect2 (n : ℕ) (h : has_sqrt n) : some_prop := by
-  obtain ⟨n,nh⟩ := h
-  sorry
+  unfold has_sqrt at h
+  obtain ⟨m,nh⟩ := h
+  rfl
 
 -- The key architectural decision in Lean: Prop is proof-irrelevant and computationally erased.
 -- The `obtain` tactic only work in the Prop (i.e., proof mode).
@@ -72,23 +77,22 @@ def sqrt_if_perfect2 (n : ℕ) (h : has_sqrt n) : some_prop := by
 
 #check Classical.choose
 -- Classical.choose : {α : Sort u} → (∃ x, p x) → α
---                                      ^^^^^^     ^^
---                                      Prop       Type!
-
+--                                    ^^^^^^^^    ^^
+--                                      Prop     Type!
 
 -- Upshot:
 -- We can use obtain tactics to extract witness in the proof mode.
 -- To go outside of proof mode, use Classical.choose to extract witness as a type and use Classical.choose_spec to access its property
 
 -- Classical.choice = function that returns an arbitrary element of a nonempty type
--- Classical.choose = function that returns a witness given a proof of an ∃
+-- Classical.choose_spec = function that returns a witness given a proof of an ∃
 
 -- In this sheet, let's work on bitonic arrays.
 
 def Bitonic (f : ℕ → ℤ) (n : ℕ) : Prop :=
-  ∃ k,  k < n ∧
-    StrictMonoOn f (Set.Icc 0 k) ∧   -- nondecreasing on [0,k]
-    StrictAntiOn f (Set.Ici k)       -- nonincreasing on [k, ∞)
+  ∃ k, k < n
+  ∧ StrictMonoOn f (Set.Icc 0 k)   -- nondecreasing on [0,k]
+  ∧ StrictAntiOn f (Set.Ici k)     -- nonincreasing on [k, ∞)
 
 -- A "bitonic" array is an array that strictly increases and then strictly decreases, like [1, 4, 8, 10, 5, 2].
 -- The goal is to find the "peak" element (10). The search logic is:
@@ -99,14 +103,14 @@ def Bitonic (f : ℕ → ℤ) (n : ℕ) : Prop :=
 structure BitonicSortedArrayFun (n :ℕ) where
   get : ℕ → ℤ
   size : ℕ := n
-  bitonic: Bitonic get n
+  bitonic: Bitonic get n  -- On defining an instance of this structure, one needs to provide a proof `bitonic` )
 
 -- Example 1
 def example1 : BitonicSortedArrayFun 5 := ⟨
   fun i => if i ≤ 2 then i else 4 - i,  -- get
   5,                                    -- size (optional since default is n)
-  by
-    simp [Bitonic]
+  by                                    -- a proof which is a `Prop`
+    simp [Bitonic]                      -- can use `example1.bitonic` in other proofs
     use 2
     simp [StrictMonoOn,StrictAntiOn]
     bound
@@ -118,7 +122,11 @@ def example1 : BitonicSortedArrayFun 5 := ⟨
    `
    notice that the order within `where` is not important since we already name the cases
 -/
-#check example1
+#print example1
+#check example1.get
+#eval example1.get 0
+#eval example1.get 3
+#eval example1.size
 
 -- Example 2:
 def example2 : BitonicSortedArrayFun 100 where
@@ -141,7 +149,10 @@ lemma BitonicSortedArrayFun.peak_idx_spec {n :ℕ} (arr: BitonicSortedArrayFun n
 lemma BitonicSortedArrayFun.peak_idx_lt_size {n : ℕ} (arr : BitonicSortedArrayFun n) :
     arr.peak_idx < n := by
     have:= arr.peak_idx_spec
+
     exact this.1
+    -- obtain ⟨h1,h2,h3⟩ := this
+    -- exact h1
 
 #print axioms BitonicSortedArrayFun.peak_idx_lt_size
 #check propext
@@ -151,7 +162,9 @@ lemma BitonicSortedArrayFun.peak_idx_lt_size {n : ℕ} (arr : BitonicSortedArray
 lemma BitonicSortedArrayFun.mono_before_peak {n : ℕ} (arr : BitonicSortedArrayFun n) :
     StrictMonoOn arr.get (Set.Icc 0 arr.peak_idx) := by
     have := arr.peak_idx_spec
-    grind
+
+    exact this.2.1
+    -- grind
 
 -- Exercise 3: Prove that any element before peak is less than peak value
 -- Hint: Combine choose_spec with StrictMonoOn properties

@@ -68,6 +68,7 @@ def HalfExact (x : ℕ) : Option ℕ :=
 -- #eval HalfExact (some 2), Ouch!
 
 -- using bind operation
+#eval some 2 >>= HalfExact
 #eval some 10 >>= HalfExact
 #eval some 3 >>= HalfExact
 #eval some 8 >>= HalfExact >>= HalfExact >>= HalfExact
@@ -108,7 +109,7 @@ instance : Monad Option where
 
 /- Think the monad as a box with content a : α
 In short, `pure a` just wraps the value a in a box,
-while    `bind ma f` (written as `ma >>= f`) takes a monad `ma`, and a function `f` that returms a monad, and it returns a monad.
+while    `bind ma f` (written as `ma >>= f`) takes a monad `ma`, and a function `f` that returns a monad, and it returns a monad.
 -/
 
 #print safeDivide
@@ -125,16 +126,16 @@ while    `bind ma f` (written as `ma >>= f`) takes a monad `ma`, and a function 
 -- Compute (20 / 4) / 2 using bind
 def example1 : Option ℕ :=
   safeDivide 20 4 >>= fun r1 =>    -- r1 = 5, still in box
-  safeDivide r1 2                   -- 5 / 2 = 2
+  safeDivide r1 2                  -- 5 / 2 = 2
 
 #eval example1  -- some 2
 
 -- Step by step what happens:
 -- 1. safeDivide 20 4        → some 5        (20/4 = 5)
 -- 2. bind (some 5) (fun r1 => safeDivide r1 2)
---    - "unbox" 5 from some 5
+--    - "unbox" to obtain `5` from `some 5`
 --    - apply function: safeDivide 5 2 → some 2
--- 3. Result: some 2
+-- 3. Result: `some 2`
 
 -- With failure:
 def example2 : Option ℕ :=
