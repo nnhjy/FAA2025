@@ -187,7 +187,7 @@ theorem Problem2A_find_peak_correct_range (n a b : ℕ)
             · simp [Set.Ici]
             · omega
           linarith
-        · -- Case: peak_idx < mid
+        · -- Case: peak_idx > mid
           have h_peak_lt_mid : arr.peak_idx > mid := by omega
           have h_anti := this.2.1
           have : arr.get (mid + 1) > arr.get mid := by
