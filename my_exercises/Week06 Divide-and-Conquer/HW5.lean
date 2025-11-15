@@ -276,10 +276,56 @@ theorem Problem3 (y : ℕ) (xs ys: List ℕ) : y ∈ Merge xs (y :: ys) := by
 -- # API about Merge
 -- In this homework, let's assume you have access to the following theorems.
 -- Proving these theorems are optional.
-theorem sorted_suffix {x : ℕ} {xs : List ℕ} (hxs : Sorted (x :: xs)) : Sorted xs := sorry
-theorem sorted_min {x : ℕ} {xs : List ℕ} (hxs : Sorted (x :: xs)) :  x.MinOfList xs  := by sorry
-theorem merge_min_out (x : ℕ) (xs ys : List ℕ) (h_min_in_xs : ∀ y ∈ xs, x ≤ y) : Merge (x :: ys) xs = x :: Merge ys xs := by sorry
-theorem merge_min_out_sym(x : ℕ) (xs ys : List ℕ) (h_min_in_xs : ∀ y ∈ xs, x ≤ y) (h_min_in_ys : ∀ y ∈ ys, x ≤ y) : Merge ys (x ::xs)  = x :: Merge ys xs := by sorry
+theorem sorted_suffix {x : ℕ} {xs : List ℕ} (hxs : Sorted (x :: xs)) : Sorted xs := by grind [Sorted]
+-- from the `API.lean`
+
+theorem sorted_min {x : ℕ} {xs : List ℕ} (hxs : Sorted (x :: xs)) :  x.MinOfList xs  := by
+  cases hxs
+  · simp [Nat.MinOfList]
+  · simp [Nat.MinOfList]
+    constructor
+    · exact a_1
+    · apply sorted_min at a_2
+      simp [Nat.MinOfList] at a_2
+      grind
+  · exact a_1
+
+-- Sheet2 Exercise 2.3
+theorem merge_min_out (x : ℕ) (xs ys : List ℕ) (h_min_in_xs : ∀ y ∈ xs, x ≤ y) : Merge (x :: ys) xs = x :: Merge ys xs := by
+  match xs with
+  | [] => simp [Merge];
+  | z::z_xlist =>
+    conv =>
+      left
+      unfold Merge
+    split_ifs with h
+    · rfl
+    · simp at h
+      have : x ≤ z := by
+        aesop
+      omega
+
+-- Sheet2 Exercise 2.4
+theorem merge_min_out_sym(x : ℕ) (xs ys : List ℕ) (h_min_in_xs : ∀ y ∈ xs, x ≤ y) (h_min_in_ys : ∀ y ∈ ys, x ≤ y) : Merge ys (x ::xs)  = x :: Merge ys xs := by
+  match ys with
+  | [] => unfold Merge; aesop
+  | y::y_ylist =>
+    conv =>
+      left
+      unfold Merge
+    split_ifs with h
+    swap
+    · rfl
+    · have : x ≤ y := by aesop
+      observe : x = y
+      subst this
+      suffices Merge y_ylist (x :: xs) = x :: Merge y_ylist xs by
+        rw [this]
+        rw [merge_min_out]
+        exact h_min_in_xs
+      apply merge_min_out_sym
+      · aesop
+      · aesop
 
 #print Nat.MinOfList
 

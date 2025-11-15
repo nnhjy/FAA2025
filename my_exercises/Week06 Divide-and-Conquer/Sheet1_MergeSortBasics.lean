@@ -53,7 +53,7 @@ else
   let l2' := MergeSort l2
   Merge l1' l2'
 
--- Let's assume sorted_merge for now; we will prove it *in the next sheet* `Sheet2`
+-- Let's assume `sorted_merge` for now; the proof *in the next sheet* `Sheet2_MergeProperties` needs additional lemmas
 theorem sorted_merge(l1 l2 : List ℕ)(hxs: Sorted l1) (hys: Sorted l2): Sorted (Merge l1 l2) := by sorry
 
 #print Sorted
