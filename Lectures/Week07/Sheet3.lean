@@ -44,6 +44,13 @@ def example3' : Option ℕ := do
 --    ...
 --    En
 
+def example3__ : Option ℕ := do
+  let r1 ← safeDivide 100 2   -- Unbox r1 = 50
+  let r2 ← safeDivide r1 5    -- Unbox r2 = 10
+  pure (r2 + 3)
+            -- Wrap result: some 13
+#eval example3'  -- some 13
+
 -- Compute ((100 / 2) / 5) + 3 using bind
 def example3''' : Option ℕ := do
   safeDivide 100 2 >>= fun r1 ↦ do
@@ -158,7 +165,7 @@ class LawfulMonad (m : Type → Type)
     (ma >>= pure) = ma
   bind_assoc {α β γ : Type} (f : α → m β) (g : β → m γ)
       (ma : m α) :
-    ((ma >>= f) >>= g) = (ma >>= (fun a ↦ f a >>= g))
+    ((ma >>= f)>>=  g) = (ma >>= (fun a ↦ f a >>= g))
 
 -- The structure takes over the fields and syntax extensions from the Bind and Pure structures,
 -- which define the bind and pure operations for m and provide related syntactic conveniences.

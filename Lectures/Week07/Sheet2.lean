@@ -3,7 +3,7 @@ import Mathlib.Tactic -- imports all of the tactics in Lean's maths library
 set_option autoImplicit false
 set_option tactic.hygienic false
 
- section Monad
+section Monad
 
 -- ## Motivating Example
 
@@ -65,12 +65,12 @@ def HalfExact (x : ℕ) : Option ℕ :=
 
 #eval HalfExact 2
 #eval HalfExact 3
--- #eval HalfExact (some 2), Ouch!
+--#eval HalfExact (some 2)
 
 -- using bind operation
 #eval some 10 >>= HalfExact
 #eval some 3 >>= HalfExact
-#eval some 8 >>= HalfExact >>= HalfExact >>= HalfExact
+#eval pure 6 >>= HalfExact >>= HalfExact >>= HalfExact
 #eval none >>= HalfExact
 
 
