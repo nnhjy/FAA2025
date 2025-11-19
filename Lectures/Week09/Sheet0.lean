@@ -41,20 +41,21 @@ def ack : Nat → Nat → Nat
 def f₁  (n : ℕ) : ℕ :=
   if n = 0 then 0
   else f₁  (n-1)
-termination_by n
-decreasing_by sorry
 
 def f₂  (n : ℕ) : ℕ →  ℕ
   | 0 => 0
   | x+1 => n + f₂ n x
-termination_by x => x + n
-decreasing_by omega
 
 def A : ℕ → ℕ → ℕ
   | 0,   y   => y+1
   | x+1, 0   => A x 1
   | x+1, y+1 => A x (A (x+1) y)
--- termination_by x y => (x, y)
+termination_by x y => (x, y)
+decreasing_by
+  · refine Prod.Lex.left 1 0 ?_
+    omega
+  · sorry
+  · sorry
 -- Lean recognizes the well-foundedness of the lexicographic order on the natural numbers
 
 def div (x y : ℕ ) : ℕ  :=

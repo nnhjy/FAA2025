@@ -35,7 +35,6 @@ def length {u v : V} : G.Walk u v → ℕ
   | nil => 0
   | cons _ q => q.length + 1
 
-
 def triangle : SimpleGraph (Fin 3) where
   Adj := fun u v =>
     (u = 0 ∧ v = 1) ∨ (u = 1 ∧ v = 0) ∨  -- edge 0-1
@@ -68,9 +67,20 @@ def reverseAux {u v w : V} : G.Walk u v → G.Walk u w → G.Walk v w
 @[symm]
 def reverse {u v : V} (w : G.Walk u v) : G.Walk v u := w.reverseAux nil
 
+lemma length_reverse_aux {u v : V} (p : G.Walk u v)
+ (q : G.Walk u w): (p.reverseAux q).length = p.length + q.length := by
+  fun_induction reverseAux
+  · aesop
+  · expose_names
+    rw [ih1]
+    simp [length]
+    omega
 
 /-- Example : The reverse of a walk has the same length -/
-lemma length_reverse {u v : V} (p : G.Walk u v) : p.reverse.length = p.length := sorry
+lemma length_reverse {u v : V} (p : G.Walk u v) : p.reverse.length = p.length := by
+  simp [reverse]
+  apply length_reverse_aux
+
 
 /-- Exercise : The length of appended walks is the sum of their lengths -/
 lemma length_append {u v w : V} (p : G.Walk u v) (q : G.Walk v w) :
@@ -89,7 +99,13 @@ theorem reachable_symm {v w : V} (hvw : G.Reachable v w) :
 -- Do it together.
 @[trans]
 theorem reachable_trans {u v w : V} (huv : G.Reachable u v) (hvw : G.Reachable v w) :
-    G.Reachable u w := by sorry
+    G.Reachable u w := by
+    cases huv
+    cases hvw
+    simp [Reachable]
+    refine Nonempty.intro ?_
+    (expose_names; exact val.append val_1)
+
 
 -- Example
 lemma connected_iff_exists_forall_reachable [nonempty : Nonempty V]: G.PreConnected ↔ ∃ v, ∀ w, G.Reachable v w := by

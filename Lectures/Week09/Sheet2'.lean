@@ -69,17 +69,21 @@ lemma bfs_result_reachable (v : V) : v ∈ bfs G s → G.Reachable s v := by
 
     apply bfs_rec_preserves_reachable_and_invariants
     · show ∀ x ∈ visited', G.Reachable s_orig x
-      -- Exercise to fill in this proof.
-      have new_neighbors_are_reachable : ∀ nn ∈ new_neighbors, G.Reachable s_orig nn := sorry
+      have new_neighbors_are_reachable : ∀ nn ∈ new_neighbors, G.Reachable s_orig nn := by
+
+        intro nn hnn_mem_new_neighbors
+        rcases Finset.mem_sdiff.mp hnn_mem_new_neighbors with ⟨h_nn_is_neighbor_of_v, _⟩
+        rw [SimpleGraph.mem_neighborFinset] at h_nn_is_neighbor_of_v
+        have sv:  G.Reachable s_orig v := by exact h_visited_is_reachable v (h_queue_nodes_in_visited v (List.Mem.head qt))
+        have vnn: G.Reachable v nn := by exact Adj.reachable h_nn_is_neighbor_of_v
+        exact Reachable.trans sv vnn
+
       intro x hx_mem_visited'
       rw [Finset.mem_union] at hx_mem_visited'
       aesop
-    · -- Exercise
-      sorry
+    · aesop
   }
   termination_by (Fintype.card V - #visited, queue.length) decreasing_by sorry
-
--- # Exercise: Prove the same statement using functional induction
 
 -- the termination proof is the same
 #check connected_iff_exists_forall_reachable
@@ -92,4 +96,9 @@ theorem spanning_imp_connected (G : FinSimpleGraph V)(s : V): #(bfs G s) = Finty
   -- Now, prove G is connected.
   -- G is connected if all pairs of nodes are reachable from each other.
   -- We'll show all nodes are reachable from `s`.
-  sorry
+  rw [@connected_iff_exists_forall_reachable]
+  use s
+  intro u
+  apply bfs_result_reachable
+  rw [h_bfs_covers_all_nodes]
+  exact mem_univ u
