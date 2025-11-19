@@ -102,5 +102,6 @@ lemma bs_aux_correctness (n q :ℕ)(arr : SortedArrayFun n) (a b :ℕ)(h_le : a 
 theorem contains_bs_correctness (n q :ℕ)(h: 0 < n)(arr : SortedArrayFun n):
   (∃ i, i < n ∧ arr.get i = q) ↔ (contains_bs arr q ≠ none) := by
   unfold contains_bs
+  simp
   have := bs_aux_correctness n q arr 0 (n-1) (by omega)
   grind
