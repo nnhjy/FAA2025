@@ -17,7 +17,8 @@ def ack : Nat → Nat → Nat
 
 /- If Lean cannot deduce the termination (especially, in graph algorithms), we need to supply termination proof.
    We prove termination by showing that the recursion is `well-founded`. That is,
-   we specify a `well-founed relation` and prove that each recursive call follows the `decreasing order` of the relation. -/
+   we specify a `well-founed relation` and prove that each recursive call follows the `decreasing order` of the relation.
+-/
 
 /- A binary relation `≺` is `well-founded` if it has no infinite descending chains `e₀ ≻ e₁ ≻ e₂ ≻ … `.
    Examples of well-bounded relation:
@@ -40,36 +41,42 @@ def ack : Nat → Nat → Nat
 
 def f₁  (n : ℕ) : ℕ :=
   if n = 0 then 0
-  else f₁  (n-1)
-<<<<<<< HEAD
-termination_by n
-decreasing_by sorry
-=======
->>>>>>> official_repo/main
+  else f₁ (n-1)
+-- termination_by n
+-- decreasing_by omega
+
+/-
+  - In general, `a => b` reads as: "given a, produce b" or "map a to b".
+    It's about specifying an input-output relationship.
+-/
 
 def f₂  (n : ℕ) : ℕ →  ℕ
   | 0 => 0
   | x+1 => n + f₂ n x
-<<<<<<< HEAD
-termination_by x => x + n
+termination_by x => x
 decreasing_by omega
-=======
->>>>>>> official_repo/main
+/- # Note
+  - `termination_by x => x + n` also work but not `termination_by n => (x + n)`
+    because in the definition
+    n : ℕ — explicit parameter (always in scope)
+    x : ℕ — implicit parameter from pattern matching (only in scope for the recursive cases)
+  - `termination_by n => ...` says "the measure depends on n only," so Lean only makes n available.
+    The variable x isn't mentioned on the left, so it's not bound in the scope of the measure expression.
+  - `termination_by x => ...`: says "the measure depends on x," so Lean binds x in the scope.
+    Since n is an explicit parameter, it's always in scope regardless.
+-/
 
 def A : ℕ → ℕ → ℕ
   | 0,   y   => y+1
   | x+1, 0   => A x 1
   | x+1, y+1 => A x (A (x+1) y)
-<<<<<<< HEAD
--- termination_by x y => (x, y)
-=======
 termination_by x y => (x, y)
 decreasing_by
   · refine Prod.Lex.left 1 0 ?_
     omega
-  · sorry
-  · sorry
->>>>>>> official_repo/main
+  · omega
+  · refine Prod.lex_def.mpr ?_
+    omega
 -- Lean recognizes the well-foundedness of the lexicographic order on the natural numbers
 
 def div (x y : ℕ ) : ℕ  :=
