@@ -144,26 +144,36 @@ theorem filter_append {α : Type} (p : α → Bool) (l1 l2 : List α) :
 
 def my_foldl {α β : Type} (f : β → α → β) (b : β) : List α → β
 | [] => b
-| a :: as => sorry
+| a :: as =>
+  my_foldl f (f b a) as
 
-example: my_foldl (fun acc x => acc + x) 0 [1, 2, 3, 4] = 10 := sorry
-example: my_foldl (fun acc x => x :: acc) ([] : List Nat) [1, 2, 3] = [3, 2, 1] := sorry
+#check my_foldl
+
+example: my_foldl (fun acc x => acc + x) 0 [1, 2, 3, 4] = 10 := by simp [my_foldl]
+example: my_foldl (fun acc x => x :: acc) ([] : List Nat) [1, 2, 3] = [3, 2, 1] := by simp [my_foldl]
 
 -- Theorem
 theorem foldl_append {α β : Type} (f : β → α → β) (b : β) (l1 l2 : List α) :
-  my_foldl f b (l1 ++ l2) = my_foldl f (my_foldl f b l1) l2 := by sorry
-
-
+  my_foldl f b (l1 ++ l2) = my_foldl f (my_foldl f b l1) l2 := by
+  fun_induction my_foldl
+  · simp
+  · simp_all [my_foldl]
 
 -- # Exercise 3.3: Write map function that operates on lists
 def my_map {α β : Type} (f : α → β) : List α → List β
 | [] => []
-| a :: as => sorry
+| a :: as =>
+  (f a) :: my_map f as
 
-example: my_map (fun x => x + 1) [1, 2, 3] = [2,3,4] := sorry
-example: my_map (fun s => s.length) ["hello", "a", "world"] = [5,1,5] := sorry
+example: my_map (fun x => x + 1) [1, 2, 3] = [2,3,4] := by simp [my_map]
+example: my_map (fun s => s.length) ["hello", "a", "world"] = [5,1,5] := by
+  simp [my_map]
+  aesop
 
 -- Theorem: map composition
 -- (f : α → β) (g : β → γ) (l : List α)
 theorem map_map_comp {α β γ : Type} (f : α → β) (g : β → γ) (l : List α) :
-  my_map (g ∘ f) l = my_map g (my_map f l) := by sorry
+  my_map (g ∘ f) l = my_map g (my_map f l) := by
+  induction' l
+  · simp [my_map]
+  · simp_all [my_map]
