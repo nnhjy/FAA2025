@@ -1,7 +1,6 @@
 import Mathlib.Tactic
 import Mathlib.Combinatorics.SimpleGraph.Walk
 
-
 namespace FAA
 
 structure SimpleGraph (V : Type u) where
@@ -118,7 +117,7 @@ lemma length_reverse {u v : V} (p : G.Walk u v) : p.reverse.length = p.length :=
 
 /-- Exercise : The length of appended walks is the sum of their lengths -/
 lemma length_append {u v w : V} (p : G.Walk u v) (q : G.Walk v w) :
-    (p.append q).length = p.length + q.length := by
+  (p.append q).length = p.length + q.length := by
   fun_induction append
   · aesop
   · expose_names
@@ -128,8 +127,8 @@ lemma length_append {u v w : V} (p : G.Walk u v) (q : G.Walk v w) :
 
 @[symm]
 theorem reachable_symm {v w : V} (hvw : G.Reachable v w) :
-    G.Reachable w v := by
-    exact (Nonempty.congr (fun a ↦ id a.reverse) fun a ↦ id a.reverse).mpr hvw
+  G.Reachable w v := by
+  exact (Nonempty.congr (fun a ↦ id a.reverse) fun a ↦ id a.reverse).mpr hvw
 
 #check Nonempty
 #check Nonempty.intro
@@ -137,33 +136,53 @@ theorem reachable_symm {v w : V} (hvw : G.Reachable v w) :
 -- Do it together.
 @[trans]
 theorem reachable_trans {u v w : V} (huv : G.Reachable u v) (hvw : G.Reachable v w) :
-    G.Reachable u w := by
-    cases huv
-    cases hvw
-    simp [Reachable]
-    refine Nonempty.intro ?_
-    (expose_names; exact val.append val_1)
+  G.Reachable u w := by
+  cases huv
+  cases hvw
+  simp [Reachable]
+  refine Nonempty.intro ?_
+  (expose_names; exact val.append val_1)
 
 -- Example
+#check G.Reachable
 lemma connected_iff_exists_forall_reachable [nonempty : Nonempty V]: G.PreConnected ↔ ∃ v, ∀ w, G.Reachable v w := by
   constructor
-  · sorry
+  · intro h
+    unfold PreConnected at h
+    aesop
   · intro h
     obtain ⟨v,h⟩ := h
-    simp [PreConnected]
-    sorry
+    unfold PreConnected
+    intro u w
+    have h_vw : G.Reachable v w := h w
+    have h_vu : G.Reachable v u := h u
+    exact reachable_trans (reachable_symm h_vu) h_vw
 
 -- Exercise
 lemma preconnected_iff_forall_reachable :
-    G.PreConnected ↔ ∀ u v : V, G.Reachable u v := by
-  sorry
+  G.PreConnected ↔ ∀ u v : V, G.Reachable u v := by
+  constructor
+  · intro h u v
+    unfold PreConnected at h
+    exact h u v
+  · intro h
+    unfold PreConnected
+    exact h
 
+#check SimpleGraph.PreConnected
 -- Exercise
 lemma exists_central_vertex_if_connected [Fintype V] [Nonempty V]
-    (hG : G.PreConnected) :
-    ∃ v : V, ∀ w : V, ∃ (p : G.Walk v w), p.length ≤ Fintype.card V - 1 := by
+  (hG : G.PreConnected) :
+  ∃ v : V, ∀ w : V, ∃ (p : G.Walk v w), p.length ≤ Fintype.card V - 1 := by
+  expose_names
+  obtain ⟨v⟩ := inst_1
+  use v
+  intro u
+  unfold PreConnected Reachable at hG
+  by_contra!
+  have h_reachable : G.Reachable v u := hG v u
+  obtain ⟨p_walk⟩ := h_reachable
   sorry
-
 
 end Walk
 end SimpleGraph
