@@ -94,7 +94,9 @@ lemma bfs_result_reachable (v : V) : v ∈ bfs G s → G.Reachable s v := by
       aesop
     · aesop
   }
-  termination_by (Fintype.card V - #visited, queue.length) decreasing_by sorry
+  termination_by (Fintype.card V - #visited, queue.length)
+  -- Week09.HW08.Problem1
+  decreasing_by sorry
 
 -- the termination proof is the same
 #check connected_iff_exists_forall_reachable
