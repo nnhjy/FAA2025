@@ -78,7 +78,7 @@ theorem v_bfs_of_neighbor_bfs (G : FinSimpleGraph (V))
     apply v_bfs_of_neighbor_bfs
     · simp_all
       aesop
-    -- # `aesop?` gives the structure below, which turns out very hard to work with
+    -- # `aesop?` gives the structure below, which turns out hard to work with
     -- · simp
     --   intro x hx1 hx2 hx3
     --   simp_all only [

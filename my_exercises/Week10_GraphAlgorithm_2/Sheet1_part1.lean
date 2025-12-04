@@ -81,10 +81,23 @@ theorem edist_le_of_reachable {G : FinSimpleGraph (V)} {s : V} (v : V) (h_neq : 
   norm_cast
   aesop
 
+#print SimpleGraph.Walk
 -- Exercise
 theorem exists_eq_cons_of_ne'.{u} {V : Type u} {G : SimpleGraph V} {u v : V} (hne : u ≠ v) :
   ∀ (p : G.Walk u v), ∃ (w : V) (p' : G.Walk u w) (h : G.Adj w v) , p =  p'.concat h := by
-  sorry
+  intro p
+
+  cases p with
+  | nil => contradiction
+  | cons h p' => exact Walk.exists_cons_eq_concat h p'
+
+  -- induction' p
+  -- · contradiction
+  -- · (expose_names; exact Walk.exists_cons_eq_concat h p)
+
+  -- induction p
+  -- case nil => contradiction
+  -- case cons => (expose_names; exact Walk.exists_cons_eq_concat h p)
 
 /-- A helper lemma for you to use-/
 theorem exists_edist_le_and_of_edist_eq {G : FinSimpleGraph (V)} {s : V} (k : ℕ) (v : V)
@@ -187,7 +200,7 @@ lemma bfs_result_reachable (v : V) : v ∈ bfs G s → G.Reachable s v := by
   unfold bfs at h_v_in_bfs
   apply bfs_rec_preserves_reachable_and_invariants s [s] {s} ; all_goals (aesop)
 
-  where  bfs_rec_preserves_reachable_and_invariants
+  where bfs_rec_preserves_reachable_and_invariants
   (s_orig : V)
   -- Arguments for the current call to bfs_rec:
   (queue : List V)
