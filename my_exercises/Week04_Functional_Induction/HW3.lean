@@ -215,3 +215,157 @@ theorem problem5_part2 (xs ys: List ℕ): len (reverse (interleave xs ys))  = le
     rw [problem1]
     rw [problem5_part2 xs_sub ys_sub]
     grind
+
+
+
+/-
+至于`Nat.add_left_cancel`为什么不行, 本质上是因为类型不匹配。
+
+`Nat.add_left_cancel {n m k : ℕ} : n + m = n + k → m = k` 在这里可以看到吃的都是自然数`ℕ`，题中的type都是 `List ℕ` 组成的equation
+
+# 1
+用rw的话
+
+可以看到这个theorem吃的是一个implicit arguments，所以可以用`@`关闭隐式参数推断
+
+`rw[← @Nat.add_left_cancel 2 (interleave xs_sub ys_sub) (len xs_sub + len ys_sub) ]`
+
+第二个参数`(interleave xs_sub ys_sub)`处会报错
+
+Application type mismatch: In the application
+  @Nat.add_left_cancel 2 (interleave xs_sub ys_sub)
+the argument
+  interleave xs_sub ys_sub
+has type
+  List ℕ : Type
+but is expected to have type
+  ℕ : Type
+
+这就很显然了
+
+# 2
+有一种方式是用suffices进行消参，
+
+suffices h :  len (interleave xs_sub ys_sub)  =  (len xs_sub + len ys_sub) from by
+  rw[h]
+
+  但这里如果用
+  `apply Nat.add_left_cancel at h`
+
+在这里就可以看到报错
+
+Failed to find `len (interleave xs_sub ys_sub) = len xs_sub + len ys_sub` as the type of a parameter of `∀ {n m k : ℕ}, n + m = n + k → m = k`.
+
+
+# 3
+也可以用apply进行观察
+
+apply会尝试将当前目标与定理的结论进行匹配，定理结论是 `b = c`，为了匹配，它必须把整个` 2 + A `当作 `b`，整个 `2 + B` 当作 `c`，但这样不行，因为定理要求形式是 `a + b = a + c`， 所以 apply 尝试另一种方式，引入元变量`a :=?n `(某个未知的n)，此时
+
+b := `2 + len (interleave xs_sub ys_sub)`
+c := `2 + len xs_sub + len ys_sub`
+
+于是新goal变成：
+`⊢ ?n + (2 + len (interleave xs_sub ys_sub)) = ?n + (2 + len xs_sub + len ys_sub)`
+
+可以看到方向反了，加了一个额外的变量`?n `而不是消去变量，由此得知由于match不到对的type，apply也不能用
+
+-/
+
+theorem problem5_part2' (xs ys: List ℕ): len (reverse (interleave xs ys))  = len (reverse (xs)) + len ys  := by
+  match xs, ys with
+  | [], [] =>
+    rw [interleave, reverse, len]
+  | x::xs_sub, [] =>
+    simp [interleave, len]
+  | [], y::ys_sub =>
+    simp [interleave]
+    rw [← problem1]
+    simp [len, reverse]
+  | x::xs_sub, y::ys_sub =>
+    rw [← problem1, ← problem1]
+    simp [len, interleave]
+    -- rw [Nat.add_add_add_comm]
+    ring_nf
+    -- # Why this doesn't work to cancel out the number 2?
+    rw [Nat.add_assoc]
+
+    -- rw[← @Nat.add_left_cancel 2 (interleave xs_sub ys_sub) (len xs_sub + len ys_sub) ]
+
+
+    suffices h :  len (interleave xs_sub ys_sub)  =  (len xs_sub + len ys_sub) from by
+      -- apply Nat.add_left_cancel at h
+      -- 正确做法1
+      exact Nat.add_left_cancel_iff.2 h
+      -- 正确做法2
+      -- rw [h]
+
+    --在这里就可以看到消去参数成功
+
+
+
+    -- apply Nat.add_left_cancel
+    sorry
+
+
+--Nat.add_left_cancel的正确用法。
+example(a b: ℕ ) (h : 2 + a = 2 + b) : a = b := by
+  exact Nat.add_left_cancel h
+
+-- 如果你有一个这样的h, 想得到 a = b, 那确实可以这样写。
+
+
+
+
+
+-- # 关于消去参数，这里提供几种办法
+#check congr
+#check congr_arg
+#check Nat.add_left_cancel_iff
+#check Nat.add_left_cancel_iff.2
+#check Nat.add_left_cancel
+
+/-
+
+# 1 用 congr
+
+congr 的作用：
+congr 1：消去最外层相同的构造函数（在这里是 2 + ...）
+congr 2：消去最外两层相同的构造函数
+congr：自动尝试消去所有能消去的相同外层结构
+congr!有更多用法你可以自己看看文档
+
+# 2 用 congr_arg
+
+apply congr_arg (fun n => 2 + n)
+可以明确指定对 2 + _ 的参数进行congruence
+
+# 3 用 Nat.add_left_cancel_iff.2
+
+-/
+
+theorem problem5_part2'' (xs ys: List ℕ): len (reverse (interleave xs ys))  = len (reverse (xs)) + len ys  := by
+  match xs, ys with
+  | [], [] =>
+    rw [interleave, reverse, len]
+  | x::xs_sub, [] =>
+    simp [interleave, len]
+  | [], y::ys_sub =>
+    simp [interleave]
+    rw [← problem1]
+    simp [len, reverse]
+  | x::xs_sub, y::ys_sub =>
+    rw [← problem1, ← problem1]
+    simp [len, interleave]
+    -- rw [Nat.add_add_add_comm]
+    ring_nf
+    -- # Why this doesn't work to cancel out the number 2?
+    rw [Nat.add_assoc]
+
+    -- congr
+    -- congr 1
+    -- apply congr_arg (fun n => 2 + n)
+    -- rw[Nat.add_left_cancel_iff.2]
+    -- apply Nat.add_left_cancel_iff.2
+
+    sorry
