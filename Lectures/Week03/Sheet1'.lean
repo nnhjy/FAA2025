@@ -1,5 +1,11 @@
+/-
+Copyright (c) 2025 Sorrachai Yingchareonthawornchai. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Sorrachai Yingchareonthawornchai
+-/
+
 import Mathlib.Tactic -- imports all of the tactics in Lean's maths library
-import Lectures.Week3.Sheet0'
+import Lectures.Week03.Sheet0'
 set_option autoImplicit false
 
 
