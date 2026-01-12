@@ -4,12 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sorrachai Yingchareonthawornchai
 -/
 
-import Mathlib.Tactic
-import Mathlib.Combinatorics.SimpleGraph.Finite
-import Mathlib.Combinatorics.SimpleGraph.Walk
+import Mathlib.Combinatorics.SimpleGraph.Paths
 import Mathlib.Combinatorics.SimpleGraph.Metric
-
-
+import Mathlib.Combinatorics.SimpleGraph.Walk
 
 structure FinSimpleGraph (V : Type u) [Fintype V] [DecidableEq V]  extends SimpleGraph V
 
@@ -20,7 +17,8 @@ open Finset SimpleGraph
 
 variable  {V : Type*} [Fintype V] [DecidableEq V]
 
-
+-- # Problem 1 : Prove that BFS terminates
+-- We will use the following BFS algorithm
 noncomputable
 def bfs_rec
 (G : FinSimpleGraph V)
@@ -34,28 +32,32 @@ def bfs_rec
     let queue' := queue ++ new_neighbors.toList
     let visited' := visited ∪ new_neighbors
     bfs_rec G queue' visited'
-    termination_by (Fintype.card V - #visited, queue.length) decreasing_by sorry
+termination_by G decreasing_by sorry
 
-#check bfs_rec.induct
-
-noncomputable def bfs
+noncomputable
+def bfs
   (G : FinSimpleGraph V)
   (s : V)
   : Finset V :=
   bfs_rec G {s} {s}
 
+-- In Problem 2 and 3, you are asked to prove the following simple properties of BFS algorithms
 
-
-theorem v_bfs_of_neighbor_bfs (G : FinSimpleGraph (V))
-  (queue : List (V))
-  (visited : Finset (V))
-  (w : V)
+-- #  Problem 2 : Prove the following theorem
+theorem Problem2 {G : FinSimpleGraph V}
+  {v : V}
+  (queue : List V)
+  (visited : Finset V)
   (h_queue_nodes_in_visited : ∀ x ∈ queue, x ∈ visited)
-  (h_visited: ∀ x ∈ visited \ queue.toFinset , G.neighborSet x ⊆ visited)
-  (h3: w ∈ bfs_rec G queue visited) :    ∀ v ∈ G.neighborSet w, v ∈ bfs_rec G queue visited := sorry
+  (h: v ∈ queue.toFinset ∪ visited):
+  v ∈ bfs_rec G queue visited :=  by sorry
 
-/-
-Lemma 2 : u ∈ bfs G s ∧ v ∈ G.neighborFinset u → v ∈ bfs G s
--/
-
-lemma lemma2_u_bfs_so_are_neighbors (G : FinSimpleGraph V) (s u v) : u ∈ bfs G s ∧ v ∈ G.neighborSet u → v ∈ bfs G s := by sorry
+-- #  Problem 3 : Prove the following theorem
+theorem Problem3 (G : FinSimpleGraph V)
+  (queue : List V)
+  (visited : Finset V)
+  (w v: V) :
+  let new_neighbors := G.neighborFinset v \ visited
+  let queue' := queue ++ new_neighbors.toList
+  let visited' := visited ∪ new_neighbors
+  w ∈ bfs_rec G (v :: queue) visited → w ∈ bfs_rec G queue' visited' := sorry

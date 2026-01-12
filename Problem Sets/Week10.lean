@@ -9,8 +9,6 @@ import Mathlib.Combinatorics.SimpleGraph.Finite
 import Mathlib.Combinatorics.SimpleGraph.Walk
 import Mathlib.Combinatorics.SimpleGraph.Metric
 
-
-
 structure FinSimpleGraph (V : Type u) [Fintype V] [DecidableEq V]  extends SimpleGraph V
 
 noncomputable
@@ -20,7 +18,7 @@ open Finset SimpleGraph
 
 variable  {V : Type*} [Fintype V] [DecidableEq V]
 
-
+-- We will use the following version of BFS algorithm.
 noncomputable
 def bfs_rec
 (G : FinSimpleGraph V)
@@ -34,7 +32,7 @@ def bfs_rec
     let queue' := queue ++ new_neighbors.toList
     let visited' := visited ∪ new_neighbors
     bfs_rec G queue' visited'
-    termination_by (Fintype.card V - #visited, queue.length) decreasing_by sorry
+    termination_by G decreasing_by sorry
 
 #check bfs_rec.induct
 
@@ -44,18 +42,28 @@ noncomputable def bfs
   : Finset V :=
   bfs_rec G {s} {s}
 
-
-
-theorem v_bfs_of_neighbor_bfs (G : FinSimpleGraph (V))
-  (queue : List (V))
-  (visited : Finset (V))
-  (w : V)
-  (h_queue_nodes_in_visited : ∀ x ∈ queue, x ∈ visited)
-  (h_visited: ∀ x ∈ visited \ queue.toFinset , G.neighborSet x ⊆ visited)
-  (h3: w ∈ bfs_rec G queue visited) :    ∀ v ∈ G.neighborSet w, v ∈ bfs_rec G queue visited := sorry
-
 /-
-Lemma 2 : u ∈ bfs G s ∧ v ∈ G.neighborFinset u → v ∈ bfs G s
+## Problem 1: Prove that BFS never returns an empty set.
 -/
 
-lemma lemma2_u_bfs_so_are_neighbors (G : FinSimpleGraph V) (s u v) : u ∈ bfs G s ∧ v ∈ G.neighborSet u → v ∈ bfs G s := by sorry
+theorem Problem1 (G : FinSimpleGraph V) (s : V) :
+  (bfs G s).Nonempty := by sorry
+
+/-
+## Problem 2: Prove that the visited set only grows during BFS.
+-/
+
+theorem Problem2 (G : FinSimpleGraph V) (queue : List V) (visited : Finset V) :
+  visited ⊆ bfs_rec G queue visited := by sorry
+
+/-
+## Problem 3:
+Prove that on a complete graph (where every vertex is connected to every other),
+BFS from any vertex s returns all vertices.
+-/
+
+def FinSimpleGraph.IsComplete (G : FinSimpleGraph V) : Prop :=
+  ∀ u v : V, u ≠ v → G.Adj u v
+
+theorem Problem3 (G : FinSimpleGraph V) (s : V) (hG : G.IsComplete) :
+  bfs G s = Finset.univ := by sorry
