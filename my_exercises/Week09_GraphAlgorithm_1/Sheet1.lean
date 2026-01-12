@@ -1,5 +1,6 @@
 import Mathlib.Tactic
 import Mathlib.Combinatorics.SimpleGraph.Walk
+import Mathlib.Combinatorics.SimpleGraph.Connectivity.WalkCounting
 
 namespace FAA
 
@@ -125,6 +126,11 @@ lemma length_append {u v w : V} (p : G.Walk u v) (q : G.Walk v w) :
     rw [ih1]
     omega
 
+  -- # Equivalent proof:
+  -- induction p with
+  -- | nil => simp [append, length]
+  -- | cons h r ih => simp [append, length, ih]; omega
+
 @[symm]
 theorem reachable_symm {v w : V} (hvw : G.Reachable v w) :
   G.Reachable w v := by
@@ -169,20 +175,116 @@ lemma preconnected_iff_forall_reachable :
     unfold PreConnected
     exact h
 
+
 #check SimpleGraph.PreConnected
--- Exercise
-lemma exists_central_vertex_if_connected [Fintype V] [Nonempty V]
-  (hG : G.PreConnected) :
-  ∃ v : V, ∀ w : V, ∃ (p : G.Walk v w), p.length ≤ Fintype.card V - 1 := by
-  expose_names
-  obtain ⟨v⟩ := inst_1
+-- Exercise: `lemma exists_central_vertex_if_connected`
+
+-- ============================================================================
+-- MINIMAL ADDITIONS FOR THE MAIN LEMMA
+-- ============================================================================
+
+/-- The list of vertices in a walk -/
+def vertices {u v : V} : G.Walk u v → List V
+  | nil => [u]
+  | cons _ p => u :: p.vertices
+
+lemma vertices_length {u v : V} (p : G.Walk u v) : p.vertices.length = p.length + 1 := by
+  induction p with
+  | nil => rfl
+  | cons _ _ ih => simp [vertices, length, ih]
+
+/-- A path is a walk with no repeated vertices -/
+def IsPath {u v : V} (p : G.Walk u v) : Prop := p.vertices.Nodup
+
+/-- Key: a path has length < card V -/
+lemma IsPath.length_lt [DecidableEq V] [Fintype V] {u v : V} {p : G.Walk u v}
+    (hp : p.IsPath) : p.length < Fintype.card V := by
+  have h1 : p.vertices.toFinset.card = p.vertices.length :=
+    List.toFinset_card_of_nodup hp
+  have h2 : p.vertices.toFinset.card ≤ Fintype.card V := Finset.card_le_univ _
+  have h3 := vertices_length p
+  omega
+
+/-- Drop prefix of walk to first occurrence of w -/
+def dropUntil [DecidableEq V] {u v : V} :
+    (p : G.Walk u v) → (w : V) → w ∈ p.vertices → G.Walk w v
+  | nil, w, hw => by simp [vertices] at hw; exact hw ▸ nil
+  | cons h p, w, hw => by
+    simp only [vertices, List.mem_cons] at hw
+    exact if heq : w = u then heq ▸ cons h p
+          else p.dropUntil w (hw.resolve_left heq)
+
+lemma dropUntil_length_le [DecidableEq V] {u v : V} (p : G.Walk u v)
+    (w : V) (hw : w ∈ p.vertices) : (p.dropUntil w hw).length ≤ p.length := by
+  induction p with
+  | nil =>
+    simp only [vertices, List.mem_singleton] at hw
+    subst hw
+    rfl
+  | cons h q ih =>
+    simp only [dropUntil]; split_ifs with heq
+    · subst heq
+      simp [length]
+    · simp only [vertices, List.mem_cons] at hw
+      cases hw with
+      | inl h => exact (heq h).elim
+      | inr hmem => simp only [length]; exact Nat.le_succ_of_le (ih hmem)
+
+lemma dropUntil_vertices_suffix [DecidableEq V] {u v : V} (p : G.Walk u v)
+    (w : V) (hw : w ∈ p.vertices) : (p.dropUntil w hw).vertices <:+ p.vertices := by
+  induction p with
+  | nil =>
+    simp only [vertices, List.mem_singleton] at hw
+    subst hw
+    simp [dropUntil, vertices]
+  | cons h q ih =>
+    simp only [dropUntil]; split_ifs with heq
+    · subst heq
+      rfl
+    · simp only [vertices, List.mem_cons] at hw
+      exact (hw.resolve_left heq |> ih).trans (List.suffix_cons _ _)
+
+lemma dropUntil_isPath [DecidableEq V] {u v : V} (p : G.Walk u v)
+    (w : V) (hw : w ∈ p.vertices) (hp : p.IsPath) : (p.dropUntil w hw).IsPath := by
+  unfold IsPath at hp ⊢
+  have hsuff := dropUntil_vertices_suffix p w hw
+  obtain ⟨pre, hpre⟩ := hsuff
+  rw [← hpre] at hp
+  exact (List.nodup_append.mp hp).2.1
+
+lemma start_mem_vertices {u v : V} (p : G.Walk u v) : u ∈ p.vertices := by
+  cases p <;> simp [vertices]
+
+/-- Convert any walk to a path -/
+def toPath [DecidableEq V] {u v : V} (p : G.Walk u v) :
+    { q : G.Walk u v // q.IsPath ∧ q.length ≤ p.length } :=
+  match p with
+  | nil => ⟨nil, List.nodup_singleton _, le_refl _⟩
+  | cons h q =>
+    let ⟨q', hpath, hlen⟩ := q.toPath
+    if hmem : u ∈ q'.vertices then
+      ⟨q'.dropUntil u hmem,
+       dropUntil_isPath q' u hmem hpath,
+       (dropUntil_length_le q' u hmem).trans (Nat.le_succ_of_le hlen)⟩
+    else
+      ⟨cons h q',
+       List.nodup_cons.mpr ⟨hmem, hpath⟩,
+       Nat.succ_le_succ hlen⟩
+
+-- ============================================================================
+-- THE MAIN LEMMA
+-- ============================================================================
+lemma exists_central_vertex_if_connected [DecidableEq V] [Fintype V] [Nonempty V]
+    (hG : G.PreConnected) :
+    ∃ v : V, ∀ w : V, ∃ (p : G.Walk v w), p.length ≤ Fintype.card V - 1 := by
+  obtain ⟨v⟩ := ‹Nonempty V›
   use v
   intro u
-  unfold PreConnected Reachable at hG
-  by_contra!
-  have h_reachable : G.Reachable v u := hG v u
-  obtain ⟨p_walk⟩ := h_reachable
-  sorry
+  obtain ⟨p⟩ := hG v u
+  obtain ⟨path, hpath, _⟩ := p.toPath
+  use path
+  have h := hpath.length_lt
+  omega
 
 end Walk
 end SimpleGraph
